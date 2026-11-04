@@ -1,5 +1,5 @@
 # Patient data: the image headers show patient ID fragments, partial names, dates and the hospital name.
-# Never commit these (see CLAUDE.md section 3).
+# Never commit these.
 final project/*.zip
 nerveseg/data/raw/
 nerveseg/data/yolo/images/
@@ -25,3 +25,7 @@ __pycache__/
 
 # Course materials (lectures, labs): kept locally, not in git (Nana, 4 Nov)
 course materials/
+
+# Personal Claude Code notes: local only, never pushed
+CLAUDE.md
+nerveseg/docs/archive/

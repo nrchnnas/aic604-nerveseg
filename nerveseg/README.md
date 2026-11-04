@@ -65,6 +65,19 @@ python nerveseg/nnunet/run.py preprocess --planner nnUNetPlannerResEncM   # only
 ```
 The rebuild keeps the saved split files, so both machines use exactly the same splits; `git status` should show no change in `data/splits/` or `nnunet/splits/`. Raw images contain patient details: do not upload `data/raw/` or the course zip anywhere public.
 
+## On a new machine (for example an NVIDIA workstation)
+1. `git clone https://github.com/nrchnnas/aic604-nerveseg` (private). The cropped data comes with it. The course zip and raw images are not in git.
+2. Set up the environment ("Setup" above). On NVIDIA, use the CUDA command from pytorch.org; any version except 2.9.x works. Save `pip freeze`, plus the GPU, driver, CUDA and OS versions, as `docs/env_<machine>.txt`.
+3. From the `comp-vision` folder:
+   ```
+   python nerveseg/nnunet/run.py preprocess
+   python nerveseg/nnunet/run.py preprocess --planner nnUNetPlannerResEncM
+   python nerveseg/nnunet/run.py check
+   ```
+   `check` should print device `cuda` and list the `nnUNetTrainerUSAug*` classes. `git status` should show no change in `data/splits/`, `nnunet/splits/` or `nnunet/nnUNet_raw/`.
+4. Time it before choosing the training length: `run.py timing -d 501`, then `-t nnUNetTrainerUSAug` (E3-A) and `-p nnUNetResEncUNetMPlans` (E3-B). The logs land in `docs/timing/`. Linux gets nnU-Net's `torch.compile` and Windows does not.
+5. Train E1, E2 and E3 on that same machine.
+
 ## Running experiments (any OS)
 ```
 python nerveseg/nnunet/run.py timing   -d 501                       # 5 epochs; prints seconds per epoch, saves the log in docs/timing/

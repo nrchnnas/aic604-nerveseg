@@ -15,7 +15,7 @@ Images are the ROI-cropped grayscale images from prepare_data.py (patient header
 
 Also writes nerveseg/nnunet/splits/<dataset>_splits_final.json. nnU-Net uses a splits_final.json
 placed in nnUNet_preprocessed/<dataset>/ instead of its own random 5-fold split. Copy it there
-after nnUNetv2_plan_and_preprocess (see CLAUDE.md). The folds keep near-duplicate clusters
+after nnUNetv2_plan_and_preprocess (run.py does this). The folds keep near-duplicate clusters
 together, so validation images never have a near-copy in their training fold:
 - Dataset501 fold 0 = splits/required_with_val.json (train 201 / val 39); folds 1 to 4 split the
   remaining clusters of the 240 so that every image is validated once across the 5 folds.

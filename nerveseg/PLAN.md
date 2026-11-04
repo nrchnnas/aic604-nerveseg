@@ -7,6 +7,12 @@ Instructor's email: select one model and explain its architecture, key component
 
 Status of this plan: work split agreed in principle by Ping ("one person does parts 1+3 and the other does 2") and adjusted by Nana on 4 Nov. Items marked OPEN still need both of you.
 
+## Where things stand (4 Nov, evening)
+- Mac (M5 Max, Apple GPU): environment set up (`docs/env_mac.txt`). E0 measured **301 s per epoch**, which is about 21 h for 250 epochs, 42 h for 500 and 84 h for 1000, per run (lower bound; `docs/timing/`). nnU-Net uses mixed precision and `torch.compile` only on NVIDIA GPUs (`torch.compile` not on Windows), so the Mac trains in plain 32-bit.
+- Because of that, training may move to an NVIDIA workstation (see README, "On a new machine"). **E1, E2 and E3 must all train on the same machine** so they are comparable.
+- More 5-epoch timing runs on the Mac are in progress: 501 and 502 at the same time, E3-A and E3-B (`docs/timing/`).
+- The analysis code (`select`, `test-variants`, `curves`, clean-up, failure types and nerve size) has been run end to end on the 5-epoch model. That was only a code test; its Dice is not a result.
+
 ## Who does what
 | Work | Owner | Notes |
 |---|---|---|
@@ -32,7 +38,7 @@ Why this split: sections 1, 3 and 4 all come from the pipeline and experiments o
 ## Experiments
 | ID | What | Dataset | Purpose | Status |
 |---|---|---|---|---|
-| E0 | 5-epoch timing run | 501 | seconds per epoch, check the split file is used | to do first |
+| E0 | 5-epoch timing run | 501 | seconds per epoch, check the split file is used | done on the Mac 4 Nov: 301 s per epoch, split file used (201/39). Repeat on the training machine if it changes. |
 | E1 | nnU-Net 2D, fold 0 | 501 (required 80/20) | headline Dice on the 60 test images | |
 | E2 | nnU-Net 2D, fold 0 | 502 (split by cluster) | Dice without near-duplicate leakage | |
 | E3 | improved variant, fold 0 | 501 (and 502 if time) | "baseline vs improved" in report 4 | OPEN: Nana wants it decided 4 Nov, after the timing runs |
