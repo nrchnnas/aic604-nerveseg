@@ -1,4 +1,4 @@
-# AIC-604 final project, team 4: nerve segmentation in ultrasound with nnU-Net
+# AIC-604 final project: nerve segmentation in ultrasound with nnU-Net
 
 Segmenting the nerve in 300 ultrasound images (one nerve outline per image) with nnU-Net (2D), evaluated with Dice on the course's 80/20 split (seed 1). A second split keeps near-duplicate images together, to show how much they inflate Dice.
 
@@ -19,5 +19,3 @@ python nerveseg/nnunet/run.py timing -d 501
 ```
 
 Data: the repo holds the cropped images and masks (the scanner header, which shows patient details, is removed). The raw images and the course zip are not in git and must not be uploaded anywhere public.
-
-Due: report by 11:59 PM on 11 Nov 2026, presentation on 11 Nov.
