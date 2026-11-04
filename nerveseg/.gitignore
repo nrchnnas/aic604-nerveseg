@@ -1,0 +1,14 @@
+# Generated data and results: large, and raw images contain patient details. Share through Drive, not git.
+data/raw/
+data/images_roi/
+data/masks_roi/
+data/yolo/
+nnunet/nnUNet_raw/
+nnunet/nnUNet_preprocessed/
+nnunet/nnUNet_results/
+nnunet/predictions/
+_to_delete/
+__pycache__/
+*.pyc
+.DS_Store
+# kept in git on purpose: data/splits/*.json, nnunet/splits/*.json, data/meta.csv, data/dataset_report.json

@@ -1,0 +1,27 @@
+# Patient data: the image headers show patient ID fragments, partial names, dates and the hospital name.
+# Never commit these (see CLAUDE.md section 3).
+final project/*.zip
+nerveseg/data/raw/
+nerveseg/data/yolo/images/
+
+# Cropped data (header removed). Not committed for now; the workstation rebuilds it from the course zip with
+# prepare_data.py + make_nnunet_dataset.py (splits are reused from git, so they are identical).
+nerveseg/data/images_roi/
+nerveseg/data/masks_roi/
+nerveseg/nnunet/nnUNet_raw/
+
+# Regenerated or machine-specific (run.py preprocess / train / predict recreate them)
+nerveseg/nnunet/nnUNet_preprocessed/
+nerveseg/nnunet/nnUNet_results/
+nerveseg/nnunet/predictions/
+nerveseg/nnunet/val_inputs/
+nerveseg/_to_delete/
+
+# Course lab dataset (not ours, not needed)
+course materials/*.zip
+
+# Local tooling
+__pycache__/
+*.pyc
+.DS_Store
+.claude/
