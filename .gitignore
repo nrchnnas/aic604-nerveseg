@@ -22,3 +22,6 @@ __pycache__/
 *.pyc
 .DS_Store
 .claude/
+
+# Course materials (lectures, labs): kept locally, not in git (Nana, 4 Nov)
+course materials/
