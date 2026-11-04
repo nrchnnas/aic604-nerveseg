@@ -11,6 +11,7 @@ Status of this plan: owners and speakers were cleared on 4 Nov so the split can 
 - Mac (M5 Max, Apple GPU): environment set up (`docs/env_mac.txt`). E0 measured **301 s per epoch**, which is about 21 h for 250 epochs, 42 h for 500 and 84 h for 1000, per run (lower bound; `docs/timing/`). nnU-Net uses mixed precision and `torch.compile` only on NVIDIA GPUs (`torch.compile` not on Windows), so the Mac trains in plain 32-bit.
 - Because of that, training may move to an NVIDIA workstation (see README, "On a new machine"). **E1, E2 and E3 must all train on the same machine** so they are comparable.
 - Mac timing done (`docs/timing/SUMMARY.md`): two runs at once give 538 s per epoch each, about 12% more total work than one run. E3-A trains the same network as the default (269 s per epoch measured). E3-B (ResEnc M) takes 483 s per epoch, 1.6 times the default. 5-fold CV at 250 epochs is about 105 h per dataset on the Mac.
+- **E1 and E2 started on the Mac at 00:09 on Thu 5 Nov**, both at once, with `nnUNetTrainer_250epochs` (Nana's decision). At 538 s per epoch each, they should finish around Fri 6 Nov early afternoon, plus slack. They are the backup if training moves to the NVIDIA workstation. 250 epochs is a quarter of nnU-Net's default 1000; the report must say so.
 - The analysis code (`select`, `test-variants`, `compare`, `curves`, clean-up, failure types and nerve size) has been run end to end on the 5-epoch models. That was only a code test; its Dice is not a result.
 
 ## Who does what
