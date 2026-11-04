@@ -85,7 +85,8 @@ Read from the package source in the `nerveseg` env (versions: `env_mac.txt`). "I
 | Batch size | 13 | default 7 |
 The two plans share the preprocessed data folder (`data_identifier` `nnUNetPlans_2d`). Preprocessing for ResEnc M therefore rewrote those files with the same steps; the default `nnUNetPlans.json` is unchanged (checksum).
 
-## To confirm from the training log
-- That it prints it is using the existing split file.
-- Seconds per epoch on each machine.
-- The number of deep supervision outputs.
+## Confirmed from the training logs (Mac, 4 Nov; `docs/timing/`)
+- Every run printed "Using splits from existing split file" and "This split has 201 training and 39 validation cases", so nnU-Net used our folds, not its own random ones.
+- Seconds per epoch on the Mac: see `docs/timing/SUMMARY.md` (default 301 s, ResEnc M 483 s).
+- Deep supervision: 7 outputs, at 1, 1/2, 1/4, 1/8, 1/16, 1/32 and 1/64 of full resolution. This was computed with nnU-Net's own formula (`_get_deep_supervision_scales`) from our plans' 8 stages; the log does not print it. Loss weights are 1, 1/2, 1/4, and so on, with the lowest resolution set to 0, then normalised, so 6 outputs contribute.
+- The ultrasound-aware trainer (E3-A) logged "rotation +-15.0 degrees, mirror axes (1,) (left-right only)".
