@@ -13,7 +13,9 @@ nnunet/trainers/), so there is nothing to `source` first. Run with the project's
   python nerveseg/nnunet/run.py select   -d 501 -t TRAINER                  # decisions on the validation images
   python nerveseg/nnunet/run.py test-variants -d 501 -t TRAINER             # every variant on the test images
   python nerveseg/nnunet/run.py compare  -d 501 -t nnUNetTrainer --vs OTHER_TRAINER[:PLANS]
-  python nerveseg/nnunet/run.py curves   -d 501 -t TRAINER                  # training curves into figures/
+  python nerveseg/nnunet/run.py curves   -d 501 -t TRAINER [--machine NAME] # training curves into figures/
+  python nerveseg/nnunet/run.py ensemble -d 501 -t TRAINER [--folds 0 1 2 3 4]  # C: 5-fold ensemble on test + CV Dice
+  python nerveseg/nnunet/run.py records  --machine NAME                     # small result files -> docs/results/NAME/
 
 -d: 501 = required 80/20 split, 502 = split by near-duplicate cluster.
 -t: nnU-Net trainer class, default nnUNetTrainer (1000 epochs). Shorter: nnUNetTrainer_250epochs, etc.
@@ -582,6 +584,128 @@ def cmd_compare(a) -> None:
           f"test: {sA['mean_dice']:.4f} vs {res['test']['candidate_summary']['mean_dice']:.4f}\n    written to {path}")
 
 
+def cmd_ensemble(a) -> None:
+    """Option C: the average of several folds' models on the test images, next to the single fold-<f> model, plus
+    the cross-validation Dice (every training image predicted by the one model that did not train on it).
+
+    The ensemble has no untouched validation images (each fold's validation images trained the other models), so
+    it is not chosen by the validation rule. It is reported on test next to the single model, and the headline
+    stays the single fold-0 model."""
+    import evaluate as ev
+
+    folds = sorted(set(a.folds))
+    if len(folds) < 2 or a.fold not in folds:
+        sys.exit(f"--folds needs at least two folds including the single model's fold {a.fold}")
+    single = Variant(a.dataset, a.trainer, a.plans, a.fold, on="test", tta=not a.no_tta)
+    ckpts = [replace(single, fold=f).model_dir() / "checkpoint_final.pth" for f in folds]
+    missing = [str(c) for c in ckpts if not c.exists()]
+    if missing:
+        sys.exit("not trained yet:\n  " + "\n  ".join(missing))
+    tag = "__folds" + "".join(map(str, folds))
+    ens_name = single.name().replace(f"__fold{a.fold}", tag, 1)
+
+    # 1. test images: ensemble vs the single model, same checkpoint (final) and same flip-averaging setting
+    images, labels = inputs(single)
+    out = PRED_ROOT / ens_name
+    expected = [out / f.name for f in labels.glob("*.png")]
+    newest = max(c.stat().st_mtime for c in ckpts)
+    if not a.force and expected and all(p.exists() for p in expected) and \
+            min(p.stat().st_mtime for p in expected) >= newest:
+        print(f"up to date, reusing {out} (pass --force to predict again)")
+    else:
+        if out.exists():
+            shutil.rmtree(out)  # generated folder
+        run([tool("nnUNetv2_predict"), "-i", str(images), "-o", str(out), "-d", a.dataset, "-c", "2d",
+             "-f", *map(str, folds), "-tr", a.trainer, "-p", a.plans, "-chk", "checkpoint_final.pth",
+             "-device", pick_device(a.device)] + ([] if single.tta else ["--disable_tta"]))
+    predict(single, a.device, a.force)
+    r_single = evaluate(single, poor_below=a.poor_below)
+    print(f"\n=== test: ensemble of folds {folds}\n    {out}")
+    r_ens = ev.score(out, labels, a.poor_below)
+    ev.report(r_ens, a.poor_below)
+    p_test = ev.paired(r_ens, r_single)
+    print(f"vs {single.label()}, fold {a.fold}: " + ev.paired_text(p_test))
+    ev.write_csv(r_ens, PRED_ROOT / f"{ens_name}_dice.csv")
+
+    # 2. cross-validation: merge the folds' own validation results (nnU-Net's, final checkpoint, flip averaging on)
+    ds = DATASETS[a.dataset]
+    prefix = f"{ds}__{a.trainer}" + ("" if a.plans == DEFAULT_PLANS else f"__{a.plans}")
+    cv_dir = PRED_ROOT / f"{prefix}__cv_folds{''.join(map(str, folds))}"
+    if cv_dir.exists():
+        shutil.rmtree(cv_dir)  # generated folder
+    (cv_dir / "labels").mkdir(parents=True)
+    raw = Path(os.environ["nnUNet_raw"]) / ds
+    per_fold, cases_seen = {}, set()
+    for f in folds:
+        vdir = replace(single, fold=f).model_dir() / "validation"
+        cases = val_cases(ds, f)
+        if not vdir.exists():
+            sys.exit(f"missing {vdir} (nnU-Net writes it at the end of training)")
+        dup = cases_seen.intersection(cases)
+        if dup:
+            sys.exit(f"cases in more than one fold's validation set: {sorted(dup)[:5]}")
+        cases_seen.update(cases)
+        for c in cases:
+            src = vdir / f"{c}.png"
+            if not src.exists():
+                sys.exit(f"missing {src}")
+            shutil.copyfile(src, cv_dir / f"{c}.png")
+            shutil.copyfile(raw / "labelsTr" / f"{c}.png", cv_dir / "labels" / f"{c}.png")
+    r_cv = ev.score(cv_dir, cv_dir / "labels", a.poor_below)
+    by_case = {r["case"]: r for r in r_cv}
+    for f in folds:
+        per_fold[f] = ev.summary([by_case[c] for c in val_cases(ds, f)])
+    n_train = len(list((raw / "labelsTr").glob("*.png")))
+    print(f"\n=== cross-validation, folds {folds}: {len(r_cv)} of {n_train} training images, each predicted by "
+          f"the model that did not train on it (single models, not the ensemble)")
+    ev.report(r_cv, a.poor_below)
+    for f, s in per_fold.items():
+        print(f"  fold {f}: {s['n']:3d} images, mean Dice {s['mean_dice']:.4f} "
+              f"(95% CI {s['ci95'][0]:.4f}-{s['ci95'][1]:.4f})")
+    ev.write_csv(r_cv, PRED_ROOT / f"{cv_dir.name}_dice.csv")
+
+    res = {"dataset": ds, "trainer": a.trainer, "plans": a.plans, "folds": folds, "flip_averaging": single.tta,
+           "rule": "not chosen by the validation rule (no untouched validation images for an ensemble); reported "
+                   f"on test next to the single fold-{a.fold} model, which stays the headline",
+           "test": {"single": single.name(), "single_summary": ev.summary(r_single), "ensemble": ens_name,
+                    "ensemble_summary": ev.summary(r_ens), "paired_ensemble_minus_single": p_test},
+           "cross_validation": {"n_images": len(r_cv), "n_training_images": n_train, "summary": ev.summary(r_cv),
+                                "per_fold": {str(f): s for f, s in per_fold.items()},
+                                "what": "nnU-Net's own validation result of each fold (final checkpoint, flip "
+                                        "averaging on), single models"}}
+    path = PRED_ROOT / f"{ens_name}_ensemble.json"
+    path.write_text(json.dumps(res, indent=2))
+    print(f"\n=== test: single {res['test']['single_summary']['mean_dice']:.4f}, ensemble "
+          f"{res['test']['ensemble_summary']['mean_dice']:.4f}; CV over {len(r_cv)} images "
+          f"{res['cross_validation']['summary']['mean_dice']:.4f}\n    written to {path}")
+
+
+def cmd_records(a) -> None:
+    """Copy the small result files into docs/results/<machine>/ so they can be committed. No images: only the
+    per-image Dice tables, decisions, training logs and nnU-Net's progress plots (5-epoch runs are in docs/timing)."""
+    if not a.machine or not re.fullmatch(r"[A-Za-z0-9_-]+", a.machine):
+        sys.exit("records needs --machine NAME (letters, digits, - or _), e.g. mac or workstation")
+    dst = NERVESEG / "docs" / "results" / a.machine
+    n = 0
+    if PRED_ROOT.exists():
+        dst.mkdir(parents=True, exist_ok=True)
+        for f in sorted(list(PRED_ROOT.glob("*.csv")) + list(PRED_ROOT.glob("*.json"))):
+            shutil.copyfile(f, dst / f.name)
+            n += 1
+    for fold_dir in sorted(Path(os.environ["nnUNet_results"]).glob("Dataset*/*__2d/fold_*")):
+        if "_5epochs" in fold_dir.parent.name:
+            continue
+        files = list(fold_dir.glob("training_log_*.txt")) + [p for p in [fold_dir / "progress.png"] if p.exists()]
+        if not files:
+            continue
+        sub = dst / "logs" / f"{fold_dir.parent.parent.name}__{fold_dir.parent.name}__{fold_dir.name}"
+        sub.mkdir(parents=True, exist_ok=True)
+        for f in files:
+            shutil.copyfile(f, sub / f.name)
+            n += 1
+    print(f"copied {n} files to {dst}\nthen: git add {dst.relative_to(NERVESEG.parent)} && git commit && git push")
+
+
 def cmd_curves(a) -> None:
     v = Variant(a.dataset, a.trainer, a.plans, a.fold)
     md = v.model_dir()
@@ -589,8 +713,10 @@ def cmd_curves(a) -> None:
     if not src.exists():
         sys.exit(f"missing {src}")
     FIGURES.mkdir(exist_ok=True)
-    dst = FIGURES / (f"{a.dataset}_{a.trainer}" + (f"_{a.plans}" if a.plans != DEFAULT_PLANS else "")
-                     + f"_fold{a.fold}_progress.png")
+    if a.machine and not re.fullmatch(r"[A-Za-z0-9_-]+", a.machine):
+        sys.exit("--machine: letters, digits, - or _ only")
+    dst = FIGURES / ((f"{a.machine}_" if a.machine else "") + f"{a.dataset}_{a.trainer}"
+                     + (f"_{a.plans}" if a.plans != DEFAULT_PLANS else "") + f"_fold{a.fold}_progress.png")
     shutil.copyfile(src, dst)
     print(f"copied {src} -> {dst}")
     print("(nnU-Net's plot: training and validation loss, and its pseudo Dice on validation patches during "
@@ -612,7 +738,7 @@ def cmd_curves(a) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("step", choices=["check", "preprocess", "timing", "train", "predict", "postprocess", "evaluate",
-                                     "select", "test-variants", "compare", "curves"])
+                                     "select", "test-variants", "compare", "curves", "ensemble", "records"])
     ap.add_argument("-d", "--dataset", choices=list(DATASETS), default="501")
     ap.add_argument("-t", "--trainer", default="nnUNetTrainer")
     ap.add_argument("-p", "--plans", default=DEFAULT_PLANS)
@@ -630,11 +756,15 @@ def main() -> None:
     ap.add_argument("--planner", help="preprocess: an extra planner, e.g. nnUNetPlannerResEncM")
     ap.add_argument("--resume", action="store_true", help="continue an interrupted training run")
     ap.add_argument("--ignore-power", action="store_true", help="train/time even on battery or in Low Power Mode")
+    ap.add_argument("--folds", type=int, nargs="+", default=[0, 1, 2, 3, 4], help="ensemble: the folds to average")
+    ap.add_argument("--machine", help="records: folder name under docs/results/, e.g. mac or workstation; "
+                                      "curves: prefix for the figure name")
     a = ap.parse_args()
     set_env()
     {"check": cmd_check, "preprocess": cmd_preprocess, "timing": cmd_timing, "train": cmd_train,
      "predict": cmd_predict, "postprocess": cmd_postprocess, "evaluate": cmd_evaluate, "select": cmd_select,
-     "test-variants": cmd_test_variants, "compare": cmd_compare, "curves": cmd_curves}[a.step](a)
+     "test-variants": cmd_test_variants, "compare": cmd_compare, "curves": cmd_curves, "ensemble": cmd_ensemble,
+     "records": cmd_records}[a.step](a)
 
 
 if __name__ == "__main__":

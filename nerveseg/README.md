@@ -18,7 +18,8 @@ Team plan, work split and timeline: `PLAN.md`. Facts for the report: `docs/nnune
 | `figures.py` | success and failure figures, Dice histograms, experiment comparison plots, Dice vs nerve size |
 | `docs/env_mac.txt` | exact package versions on Nana's Mac (`pip freeze`) |
 | `docs/timing/` | logs and summaries of the 5-epoch timing runs |
-| `nnunet/predictions/` | predictions, per-image Dice CSVs, `*_selection.json`, `*_variants.csv` |
+| `nnunet/predictions/` | predictions, per-image Dice CSVs, `*_selection.json`, `*_variants.csv`, `*_ensemble.json` (not in git) |
+| `docs/results/<machine>/` | the small result files copied by `run.py records` (Dice tables, decisions, training logs), in git |
 | `nnunet/val_inputs/` | copies of each fold's validation images and labels (made by run.py) |
 | `figures/` | figures for the report and slides (all use cropped images, no patient details) |
 | `data/yolo/` | kept from an earlier plan (YOLO + MedSAM); not used |
@@ -61,22 +62,78 @@ The git repo holds the code, docs, split files and the cropped data (`data/image
 python nerveseg/prepare_data.py
 python nerveseg/nnunet/make_nnunet_dataset.py
 python nerveseg/nnunet/run.py preprocess
-python nerveseg/nnunet/run.py preprocess --planner nnUNetPlannerResEncM   # only if E3-B (ResEnc M) is used
+python nerveseg/nnunet/run.py preprocess --planner nnUNetPlannerResEncM   # needed for option B (ResEnc M)
 ```
 The rebuild keeps the saved split files, so both machines use exactly the same splits; `git status` should show no change in `data/splits/` or `nnunet/splits/`. Raw images contain patient details: do not upload `data/raw/` or the course zip anywhere public.
 
-## On a new machine (for example an NVIDIA workstation)
-1. `git clone https://github.com/nrchnnas/aic604-nerveseg` (private). The cropped data comes with it. The course zip and raw images are not in git.
-2. Set up the environment ("Setup" above). On NVIDIA, use the CUDA command from pytorch.org; any version except 2.9.x works. Save `pip freeze`, plus the GPU, driver, CUDA and OS versions, as `docs/env_<machine>.txt`.
-3. From the `comp-vision` folder:
+## On the NVIDIA workstation: options B and C (from Thu 5 Nov)
+E1, E2 and E3 train on the Mac. The workstation trains its own default run **W0**, then **B** (ResEnc M) and **C** (5-fold ensemble). B and C are compared only with W0, never with a Mac number, because the two machines also differ in precision (the Mac runs 32-bit; NVIDIA runs mixed 16/32-bit) and in `torch.compile`. W0 vs E1 (same setup, two machines) shows how much Dice moves between two runs. Plan and rules: `PLAN.md`, "Workstation: B and C".
+
+1. Get the code (the cropped data comes with it; the course zip and raw images are not in git and are not needed):
+   ```
+   git clone https://github.com/nrchnnas/aic604-nerveseg comp-vision
+   cd comp-vision
+   ```
+   Already cloned: `git pull`. Set your git name and email for this clone (`git config user.name ...`, `git config user.email ...`).
+2. Environment ("Setup" above; Linux is the same as Windows): Python 3.11, the CUDA install command from pytorch.org (any torch except 2.9.x), then `pip install -r nerveseg/requirements.txt`. Save the versions:
+   ```
+   pip freeze > nerveseg/docs/env_workstation.txt
+   python -c "import platform, torch; print(platform.platform(), 'torch', torch.__version__, 'cuda', torch.version.cuda, torch.cuda.get_device_name(0))" >> nerveseg/docs/env_workstation.txt
+   nvidia-smi >> nerveseg/docs/env_workstation.txt
+   ```
+3. Preprocess and check (from the `comp-vision` folder):
    ```
    python nerveseg/nnunet/run.py preprocess
    python nerveseg/nnunet/run.py preprocess --planner nnUNetPlannerResEncM
    python nerveseg/nnunet/run.py check
+   git status
    ```
-   `check` should print device `cuda` and list the `nnUNetTrainerUSAug*` classes. `git status` should show no change in `data/splits/`, `nnunet/splits/` or `nnunet/nnUNet_raw/`.
-4. Time it before choosing the training length: `run.py timing -d 501`, then `-t nnUNetTrainerUSAug` (E3-A) and `-p nnUNetResEncUNetMPlans` (E3-B). The logs land in `docs/timing/`. Linux gets nnU-Net's `torch.compile` and Windows does not.
-5. Train E1, E2 and E3 on that same machine.
+   `check` must print device `cuda` and find the `nnUNetTrainerUSAug*` classes. `git status` must show no change in `nerveseg/data/splits/`, `nerveseg/nnunet/splits/` or `nerveseg/nnunet/nnUNet_raw/`.
+4. Time it (5 epochs each):
+   ```
+   python nerveseg/nnunet/run.py timing -d 501
+   python nerveseg/nnunet/run.py timing -d 501 -p nnUNetResEncUNetMPlans
+   ```
+   Each prints seconds per epoch and the hours for 250 epochs. If one run uses less than half of the GPU memory (`nvidia-smi`), also time two at once (two terminals, `-d 501` and `-d 502`). Add a "Workstation" section to `docs/timing/SUMMARY.md`.
+5. Decide what fits before **Mon 9 Nov 08:00** (report section 4 is written on Monday). All runs are 250 epochs on 501, in this order:
+   ```
+   python nerveseg/nnunet/run.py train -d 501 -t nnUNetTrainer_250epochs                             # W0 = fold 0
+   python nerveseg/nnunet/run.py train -d 501 -t nnUNetTrainer_250epochs -p nnUNetResEncUNetMPlans   # B
+   python nerveseg/nnunet/run.py train -d 501 -t nnUNetTrainer_250epochs -f 1                        # C: folds 1 to 4
+   python nerveseg/nnunet/run.py train -d 501 -t nnUNetTrainer_250epochs -f 2
+   python nerveseg/nnunet/run.py train -d 501 -t nnUNetTrainer_250epochs -f 3
+   python nerveseg/nnunet/run.py train -d 501 -t nnUNetTrainer_250epochs -f 4
+   ```
+   W0 is needed by both B and C. B costs 1 run plus W0; C costs 4 runs plus W0. If only part fits, do W0 and B, and C only if all 4 folds fit.
+   - Two runs at once, if the timing showed it helps: start them in two terminals. With two GPUs, put one run on each: `CUDA_VISIBLE_DEVICES=1 python ...` (Linux) or `$env:CUDA_VISIBLE_DEVICES=1` first (PowerShell).
+   - Keep the machine from sleeping (Windows: power plan "never sleep" while plugged in).
+   - An interrupted run continues with the same command plus `--resume`.
+   - If `torch.compile` fails on Linux, set `nnUNet_compile=f` and note it in `env_workstation.txt`.
+6. Analyses, as each run finishes (rules in `PLAN.md`, "Analyses on every trained run"):
+   ```
+   python nerveseg/nnunet/run.py curves        -d 501 -t nnUNetTrainer_250epochs --machine workstation
+   python nerveseg/nnunet/run.py select        -d 501 -t nnUNetTrainer_250epochs
+   python nerveseg/nnunet/run.py test-variants -d 501 -t nnUNetTrainer_250epochs
+   python nerveseg/nnunet/run.py curves        -d 501 -t nnUNetTrainer_250epochs -p nnUNetResEncUNetMPlans --machine workstation
+   python nerveseg/nnunet/run.py select        -d 501 -t nnUNetTrainer_250epochs -p nnUNetResEncUNetMPlans
+   python nerveseg/nnunet/run.py test-variants -d 501 -t nnUNetTrainer_250epochs -p nnUNetResEncUNetMPlans
+   python nerveseg/nnunet/run.py compare       -d 501 -t nnUNetTrainer_250epochs --vs nnUNetTrainer_250epochs:nnUNetResEncUNetMPlans   # B vs W0
+   python nerveseg/nnunet/run.py ensemble      -d 501 -t nnUNetTrainer_250epochs   # C vs W0 on test, plus the 5-fold CV Dice
+   ```
+   `select` must run before `test-variants`. `ensemble` needs folds 0 to 4 finished.
+7. Bring the results back through git (no images, only Dice tables, decisions, logs and plots):
+   ```
+   python nerveseg/nnunet/run.py records --machine workstation
+   git pull --rebase
+   git add nerveseg/docs/results/workstation nerveseg/docs/env_workstation.txt nerveseg/docs/timing nerveseg/figures
+   git commit -m "Workstation: <what finished>"
+   git push
+   ```
+   Do this after the timing runs, and again whenever a run finishes, so the Mac side can follow.
+
+### Using Claude Code on the workstation
+Open Claude Code in the `comp-vision` folder and paste:
+> Read nerveseg/PLAN.md and nerveseg/README.md, section "On the NVIDIA workstation: options B and C". Do steps 1 to 4, then report the measured seconds per epoch and an hours table (lower bound), and recommend what fits before Mon 9 Nov 08:00. Do not start the long training runs until I agree. Keep every comparison on this machine (B and C vs W0). Records go in the repo (step 7), not a scratchpad. Never commit the course zip or nerveseg/data/raw/.
 
 ## Running experiments (any OS)
 ```
