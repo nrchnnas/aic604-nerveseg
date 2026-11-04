@@ -5,7 +5,7 @@ Due: report by 11:59 PM Wed 11 Nov 2026; 15-minute in-person presentation on 11 
 Grading: report 40%, presentation 40%, activity 20%. Report form: dataset 5, model 60, experimental design 25, results 10.
 Instructor's email: select one model and explain its architecture, key components, and "the main contributions that enable it to perform effectively on the given task".
 
-Status of this plan: work split agreed in principle by Ping ("one person does parts 1+3 and the other does 2") and adjusted by Nana on 4 Nov. Items marked OPEN still need both of you.
+Status of this plan: owners and speakers were cleared on 4 Nov so the split can be decided again together (Ping's earlier suggestion: "one person does parts 1+3 and the other does 2"). Items marked OPEN still need both of you.
 
 ## Where things stand (4 Nov, evening)
 - Mac (M5 Max, Apple GPU): environment set up (`docs/env_mac.txt`). E0 measured **301 s per epoch**, which is about 21 h for 250 epochs, 42 h for 500 and 84 h for 1000, per run (lower bound; `docs/timing/`). nnU-Net uses mixed precision and `torch.compile` only on NVIDIA GPUs (`torch.compile` not on Windows), so the Mac trains in plain 32-bit.
@@ -16,18 +16,18 @@ Status of this plan: work split agreed in principle by Ping ("one person does pa
 ## Who does what
 | Work | Owner | Notes |
 |---|---|---|
-| Data pipeline, splits, training, evaluation, figures | Nana | runs on Nana's Mac (M5 Max). Code in this folder. |
-| Report 1: dataset description and preprocessing | Nana | facts in `data/dataset_report.json`, README "Dataset facts" |
-| Report 2: nnU-Net architecture and contributions | Ping | the 60-point section; outline agreed with Nana first |
-| Report 2, part: what nnU-Net configured for our data and why it suits this task | Nana (with Ping) | from `docs/nnunet_facts.md`; this is the "on the given task" part of the email |
-| Report 3: experimental design | Nana | training settings, metrics, splits, overfitting controls |
-| Report 4: results and analysis | Nana | tables, success and failure cases, leakage comparison |
-| Slides design | Ping | OPEN: confirm |
-| Merging the report into one document | OPEN | whoever has more time on Mon 9 |
+| Data pipeline, splits, training, evaluation, figures |  | all training on one machine (Mac or the NVIDIA workstation). Code in this folder. |
+| Report 1: dataset description and preprocessing |  | facts in `data/dataset_report.json`, README "Dataset facts" |
+| Report 2: nnU-Net architecture and contributions |  | the 60-point section; outline agreed together first |
+| Report 2, part: what nnU-Net configured for our data and why it suits this task |  | from `docs/nnunet_facts.md`; this is the "on the given task" part of the email |
+| Report 3: experimental design |  | training settings, metrics, splits, overfitting controls |
+| Report 4: results and analysis |  | tables, success and failure cases, leakage comparison |
+| Slides design |  | |
+| Merging the report into one document |  | |
 
-Why this split: sections 1, 3 and 4 all come from the pipeline and experiments on Nana's machine, so one person holding them avoids passing facts back and forth. Section 2 does not depend on results, so Ping can start immediately and nobody waits. Risk: 60% of the report grade sits in one section, so the outline is agreed together early and Nana reviews the draft on Sat 7.
+Note: 60% of the report grade sits in section 2, so its outline is agreed together early and the other person reviews the draft on Sat 7.
 
-## Proposed outline for report section 2 (for Ping; OPEN until agreed)
+## Proposed outline for report section 2 (OPEN until agreed)
 1. Task and why segmentation (one short paragraph).
 2. U-Net: encoder, decoder, skip connections; why this shape suits segmentation.
 3. nnU-Net's main contribution: self-configuration. Fixed parameters, rule-based parameters from the dataset fingerprint, empirical parameters. The paper's claim that configuration matters more than architecture.
@@ -87,21 +87,22 @@ Metrics: Dice per test image; mean with bootstrap 95% CI, median, minimum; IoU. 
 ## Presentation (15 minutes)
 | Slide | Content | Speaker | Time |
 |---|---|---|---|
-| 1 | Title, task | Ping | 0:45 |
-| 2 | Why nerve segmentation in ultrasound; what the data looks like | Nana | 1:15 |
-| 3 | Dataset issues: tiny target, patient details removed, near-duplicates | Nana | 1:30 |
-| 4 | U-Net basics | Ping | 1:30 |
-| 5 | nnU-Net's idea: fixed, rule-based, empirical parameters | Ping | 2:00 |
-| 6 | What nnU-Net chose for our data and why it fits | Ping | 1:30 |
-| 7 | Training setup (loss, optimizer, augmentation) | Ping | 1:15 |
-| 8 | Experimental design: splits, metrics, overfitting controls | Nana | 1:15 |
-| 9 | Results table | Nana | 1:15 |
-| 10 | Successes and failures | Nana | 1:15 |
-| 11 | Leakage: required vs grouped split; baseline vs improved | Nana | 1:00 |
-| 12 | Conclusion and limitations | both | 0:30 |
-Ping about 7:30, Nana about 7:30. Both should be able to answer questions on either half.
+| 1 | Title, task |  | 0:45 |
+| 2 | Why nerve segmentation in ultrasound; what the data looks like |  | 1:15 |
+| 3 | Dataset issues: tiny target, patient details removed, near-duplicates |  | 1:30 |
+| 4 | U-Net basics |  | 1:30 |
+| 5 | nnU-Net's idea: fixed, rule-based, empirical parameters |  | 2:00 |
+| 6 | What nnU-Net chose for our data and why it fits |  | 1:30 |
+| 7 | Training setup (loss, optimizer, augmentation) |  | 1:15 |
+| 8 | Experimental design: splits, metrics, overfitting controls |  | 1:15 |
+| 9 | Results table |  | 1:15 |
+| 10 | Successes and failures |  | 1:15 |
+| 11 | Leakage: required vs grouped split; baseline vs improved |  | 1:00 |
+| 12 | Conclusion and limitations |  | 0:30 |
+Speakers: OPEN. The brief says everyone speaks, so aim for about 7:30 each. Both should be able to answer questions on either half.
 
 ## OPEN
+- Work split and speakers (owner and speaker columns cleared 4 Nov; decide together).
 - Section 2 outline (Thu 5).
 - E3 choice (Nana: decide 4 Nov, after the timing runs).
 - Training length and 5-fold CV: decide after the timing runs (Nana, 4 Nov: do not rule out 5-fold before seeing them).
