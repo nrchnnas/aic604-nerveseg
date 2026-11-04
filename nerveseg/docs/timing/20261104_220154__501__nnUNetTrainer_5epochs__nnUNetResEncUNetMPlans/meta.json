@@ -1,0 +1,11 @@
+{
+  "started": "2026-11-04 22:01:54",
+  "dataset": "Dataset501_NerveRequired",
+  "trainer": "nnUNetTrainer_5epochs",
+  "plans": "nnUNetResEncUNetMPlans",
+  "fold": 0,
+  "device": "mps",
+  "machine": "macOS-26.4-arm64-arm-64bit",
+  "nnUNet_n_proc_DA": "not set (nnU-Net default)",
+  "power_problem": null
+}
