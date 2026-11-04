@@ -690,6 +690,8 @@ def cmd_records(a) -> None:
     if PRED_ROOT.exists():
         dst.mkdir(parents=True, exist_ok=True)
         for f in sorted(list(PRED_ROOT.glob("*.csv")) + list(PRED_ROOT.glob("*.json"))):
+            if "_5epochs" in f.name:  # code tests on the timing models, not results
+                continue
             shutil.copyfile(f, dst / f.name)
             n += 1
     for fold_dir in sorted(Path(os.environ["nnUNet_results"]).glob("Dataset*/*__2d/fold_*")):
