@@ -56,7 +56,7 @@ python nerveseg/nnunet/run.py check
 It prints the device it will use (cuda, mps or cpu) and whether the datasets and split files are in place.
 
 ## Getting the data onto another machine
-The git repo holds the code, docs and split files, but no images. The generated folders (`data/`, `nnunet/nnUNet_raw/`, `nnunet/nnUNet_preprocessed/`) are about 0.7 GB. Either copy the whole `nerveseg` folder (Google Drive), or put the course zip at `final project/nerve (1).zip` and rebuild:
+The git repo holds the code, docs, split files and the cropped data (`data/images_roi`, `data/masks_roi`, `nnunet/nnUNet_raw`; header removed), but not the raw images or the course zip. After cloning, run `python nerveseg/nnunet/run.py preprocess` (plus `--planner nnUNetPlannerResEncM` if needed). The generated folders (`data/`, `nnunet/nnUNet_raw/`, `nnunet/nnUNet_preprocessed/`) are about 0.7 GB. Either copy the whole `nerveseg` folder (Google Drive), or put the course zip at `final project/nerve (1).zip` and rebuild:
 ```
 python nerveseg/prepare_data.py
 python nerveseg/nnunet/make_nnunet_dataset.py

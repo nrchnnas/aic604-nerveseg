@@ -4,11 +4,8 @@ final project/*.zip
 nerveseg/data/raw/
 nerveseg/data/yolo/images/
 
-# Cropped data (header removed). Not committed for now; the workstation rebuilds it from the course zip with
-# prepare_data.py + make_nnunet_dataset.py (splits are reused from git, so they are identical).
-nerveseg/data/images_roi/
-nerveseg/data/masks_roi/
-nerveseg/nnunet/nnUNet_raw/
+# Cropped data (header removed) IS committed, by Nana's choice on 4 Nov (private repo): data/images_roi,
+# data/masks_roi and nnunet/nnUNet_raw. Checked: no names, IDs or dates in a 24-of-300 sample; the crop is fixed.
 
 # Regenerated or machine-specific (run.py preprocess / train / predict recreate them)
 nerveseg/nnunet/nnUNet_preprocessed/

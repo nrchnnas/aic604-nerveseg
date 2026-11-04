@@ -1,0 +1,13 @@
+{
+ "channel_names": {
+  "0": "ultrasound"
+ },
+ "labels": {
+  "background": 0,
+  "nerve": 1
+ },
+ "numTraining": 240,
+ "file_ending": ".png",
+ "name": "Dataset501_NerveRequired",
+ "description": "ROI-cropped grayscale ultrasound, nerve masks. Train/test from nerveseg/data/splits/required.json."
+}
