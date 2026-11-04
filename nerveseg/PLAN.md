@@ -1,6 +1,6 @@
-# Team 4 plan: nerve segmentation with nnU-Net
+# Plan: nerve segmentation with nnU-Net
 
-Team: Ping (Pingpan) and Nana. Model: nnU-Net (team 4 on the sheet).
+Team: Ping (Pingpan) and Nana. Model: nnU-Net.
 Due: report by 11:59 PM Wed 11 Nov 2026; 15-minute in-person presentation on 11 Nov, both speak.
 Grading: report 40%, presentation 40%, activity 20%. Report form: dataset 5, model 60, experimental design 25, results 10.
 Instructor's email: select one model and explain its architecture, key components, and "the main contributions that enable it to perform effectively on the given task".

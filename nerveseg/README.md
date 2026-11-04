@@ -1,4 +1,4 @@
-# nerveseg: nerve segmentation in ultrasound with nnU-Net (AIC-604, team 4)
+# nerveseg: nerve segmentation in ultrasound with nnU-Net (AIC-604)
 
 Team plan, work split and timeline: `PLAN.md`. Facts for the report: `docs/nnunet_facts.md`. Reading list: `docs/resources.md`.
 
