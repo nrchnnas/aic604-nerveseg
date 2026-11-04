@@ -536,12 +536,12 @@ def cmd_test_variants(a) -> None:
     selected = sel["selected"]
     table = []
     print(f"\n=== {t0.dataset} test images, {a.trainer}: every variant (selected on validation: {selected})")
-    print(f"{'variant':72s} {'mean':>7s} {'95% CI':>17s} {'vs default':>10s} {'diff 95% CI':>19s}")
+    print(f"  {'variant':70s} {'mean':>7s} {'95% CI':>17s} {'vs default':>10s} {'diff 95% CI':>19s}")
     for v, rows, note in results:
         s = ev.summary(rows)
         p = ev.paired(rows, r0) if v != t0 else None
-        mark = " *" if v.name() == selected else ""
-        print(f"{(v.label() + mark)[:72]:72s} {s['mean_dice']:7.4f} {s['ci95'][0]:8.4f}-{s['ci95'][1]:.4f} "
+        mark = "*" if v.name() == selected else " "
+        print(f"{mark} {v.label()[:70]:70s} {s['mean_dice']:7.4f} {s['ci95'][0]:8.4f}-{s['ci95'][1]:.4f} "
               + (f"{p['mean_diff']:+10.4f} {p['ci95'][0]:+9.4f}-{p['ci95'][1]:+.4f}" if p else f"{'':>10s}")
               + f"  {note}")
         table.append({"variant": v.name(), "description": v.label(), "note": note, "selected_on_validation":
