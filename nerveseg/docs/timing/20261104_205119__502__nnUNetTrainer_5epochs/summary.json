@@ -1,0 +1,23 @@
+{
+  "epoch_times_s": [
+    529.69,
+    547.32,
+    549.46,
+    531.33,
+    518.75
+  ],
+  "mean_s_per_epoch_excluding_first": 536.715,
+  "seconds_after_last_epoch": 23.324142,
+  "log_notes": [
+    "do_dummy_2d_data_aug: False ",
+    "Using splits from existing split file: /Users/nrchnnas/Documents/CMKL/comp-vision/nerveseg/nnunet/nnUNet_preprocessed/Dataset502_NerveGrouped/splits_final.json ",
+    "The split file contains 5 splits. ",
+    "Desired fold for training: 0 ",
+    "This split has 201 training and 36 validation cases. ",
+    "Using splits from existing split file: /Users/nrchnnas/Documents/CMKL/comp-vision/nerveseg/nnunet/nnUNet_preprocessed/Dataset502_NerveGrouped/splits_final.json ",
+    "The split file contains 5 splits. ",
+    "Desired fold for training: 0 ",
+    "This split has 201 training and 36 validation cases. "
+  ],
+  "wall_clock_s": 2718.9
+}
