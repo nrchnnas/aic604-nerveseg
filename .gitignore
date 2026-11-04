@@ -1,6 +1,7 @@
 # Patient data: the image headers show patient ID fragments, partial names, dates and the hospital name.
 # Never commit these.
-final project/*.zip
+nerveseg/docs/final project/*.zip
+*.zip
 nerveseg/data/raw/
 nerveseg/data/yolo/images/
 

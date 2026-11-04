@@ -78,11 +78,11 @@ Metrics: Dice per test image; mean with bootstrap 95% CI, median, minimum; IoU. 
 | Wed 4 | set up environment, run E0 | read the nnU-Net paper (resources 1, 4) |
 | Thu 5 | start E1 | send section 2 outline; agree it together |
 | Fri 6 | E1 finishes (depends on E0 timing), start E2 | write section 2 |
-| Sat 7 | E1/E2 results and figures; choose E3 together | section 2 draft to Nana |
+| Sat 7 | E1/E2 results and figures; choose E3 together | section 2 draft to Nana; choose E3 together |
 | Sun 8 | run E3; draft sections 1 and 3 | revise section 2; slide template |
 | Mon 9 | section 4; merge report v1 | slides for intro and model |
-| Tue 10 | both: full slide deck, rehearse twice with a timer, fix gaps | |
-| Wed 11 | present; submit report by 11:59 PM | |
+| Tue 10 | both: full slide deck, rehearse twice with a timer, fix gaps | both: full slide deck, rehearse twice with a timer, fix gaps |
+| Wed 11 | present; submit report by 11:59 PM | present; submit report by 11:59 PM |
 
 ## Presentation (15 minutes)
 | Slide | Content | Speaker | Time |

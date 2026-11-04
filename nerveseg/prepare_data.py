@@ -7,7 +7,7 @@ Required by the brief: 80/20 split with seed 1. Steps marked "agreed 4 Nov" go b
 the brief; Nana approved them on 4 Nov 2026.
 
 What it does
-1. Extracts final project/nerve (1).zip into data/raw/ (skips __MACOSX).
+1. Extracts docs/final project/nerve (1).zip into data/raw/ (skips __MACOSX).
 2. Pairs each <id>.json with <id>.jpg or <id>.png by number. The imagePath field
    inside 14 JSON files names a different file, but the embedded imageData matches
    the same-numbered image in all 300 cases, so imagePath is ignored.
@@ -35,7 +35,7 @@ from PIL import Image, ImageDraw
 from sklearn.model_selection import train_test_split
 
 ROOT = Path(__file__).resolve().parent
-ZIP_PATH = ROOT.parent / "final project" / "nerve (1).zip"
+ZIP_PATH = ROOT / "docs" / "final project" / "nerve (1).zip"
 DATA = ROOT / "data"
 RAW = DATA / "raw" / "nerve"
 
