@@ -7,12 +7,12 @@ Instructor's email: select one model and explain its architecture, key component
 
 Status of this plan: owners and speakers were cleared on 4 Nov so the split can be decided again together (Ping's earlier suggestion: "one person does parts 1+3 and the other does 2"). Items marked OPEN still need both of you.
 
-## Where things stand (5 Nov, 03:00)
+## Where things stand (5 Nov, 11:15)
 - Mac (M5 Max, Apple GPU): environment set up (`docs/env_mac.txt`). E0 measured **301 s per epoch**, which is about 21 h for 250 epochs, 42 h for 500 and 84 h for 1000, per run (lower bound; `docs/timing/`). nnU-Net uses mixed precision and `torch.compile` only on NVIDIA GPUs (`torch.compile` not on Windows), so the Mac trains in plain 32-bit.
 - **E1, E2 and E3 all train on the Mac** so they are comparable with each other. The NVIDIA workstation trains B and C with its own baseline W0 (see "Workstation: B and C").
 - Mac timing done (`docs/timing/SUMMARY.md`): two runs at once give 538 s per epoch each, about 12% more total work than one run. E3-A trains the same network as the default (269 s per epoch measured). E3-B (ResEnc M) takes 483 s per epoch, 1.6 times the default. 5-fold CV at 250 epochs is about 105 h per dataset on the Mac.
-- **E1 and E2 started on the Mac at 00:09 on Thu 5 Nov**, both at once, with `nnUNetTrainer_250epochs` (Nana's decision). Measured in the first 14 epochs: about 500 s per epoch each (435 to 580 s). At that speed they finish around 11:30 on Fri 6 Nov (later if the laptop heats up). They are the backup if training moves to the NVIDIA workstation. 250 epochs is a quarter of nnU-Net's default 1000; the report must say so.
-- **E3 decided 5 Nov (Nana): option A, ultrasound-aware augmentation**, `nnUNetTrainerUSAug_250epochs`, on 501 and 502 at the same time. It starts by itself when E1 and E2 have both finished and written `checkpoint_final.pth`. At about 500 s per epoch each it should finish around 22:30 on Sat 7 Nov. Reasons: see "Experiments".
+- **E1 and E2 started on the Mac at 00:09 on Thu 5 Nov**, both at once, with `nnUNetTrainer_250epochs` (Nana's decision). Measured: about 500 s per epoch each for epochs 1 to 40. From about 05:45 on Thu 5 the time rose slowly to about 600 s (72 of 250 epochs done at 11:05). Cause unknown: macOS recorded no thermal warning and memory is not short. At 600 s they finish around 17:00 on Fri 6 Nov; if they return to 500 s, around 12:00. They are the backup if training moves to the NVIDIA workstation. 250 epochs is a quarter of nnU-Net's default 1000; the report must say so.
+- **E3 decided 5 Nov (Nana): option A, ultrasound-aware augmentation**, `nnUNetTrainerUSAug_250epochs`, on 501 and 502 at the same time. It starts by itself when E1 and E2 have both finished and written `checkpoint_final.pth`. At 500 to 600 s per epoch each it should finish between about 23:00 on Sat 7 and 11:00 on Sun 8 Nov (estimate). Reasons: see "Experiments".
 - **B and C go to the NVIDIA workstation** (Nana, 5 Nov), with their own default run W0 there: see "Workstation: B and C". The handoff is in README, "On the NVIDIA workstation".
 - The analysis code (`select`, `test-variants`, `compare`, `curves`, clean-up, failure types and nerve size) has been run end to end on the 5-epoch models. That was only a code test; its Dice is not a result.
 
@@ -42,9 +42,9 @@ Note: 60% of the report grade sits in section 2, so its outline is agreed togeth
 | ID | What | Dataset | Purpose | Status |
 |---|---|---|---|---|
 | E0 | 5-epoch timing run | 501 | seconds per epoch, check the split file is used | done on the Mac 4 Nov: 301 s per epoch, split file used (201/39). Repeat on the training machine if it changes. |
-| E1 | nnU-Net 2D, fold 0 | 501 (required 80/20) | headline Dice on the 60 test images | training on the Mac since 00:09 Thu 5 Nov (250 epochs) |
-| E2 | nnU-Net 2D, fold 0 | 502 (split by cluster) | Dice without near-duplicate leakage | training on the Mac since 00:09 Thu 5 Nov (250 epochs) |
-| E3 | option A, ultrasound-aware augmentation (`nnUNetTrainerUSAug_250epochs`), fold 0 | 501 and 502 | "baseline vs improved" in report 4 | decided 5 Nov; starts by itself after E1 and E2, finishes about Sat 7 22:30 |
+| E1 | nnU-Net 2D, fold 0 | 501 (required 80/20) | headline Dice on the 60 test images | training on the Mac since 00:09 Thu 5 Nov (250 epochs); finishes about 12:00 to 17:00 Fri 6 |
+| E2 | nnU-Net 2D, fold 0 | 502 (split by cluster) | Dice without near-duplicate leakage | training on the Mac since 00:09 Thu 5 Nov (250 epochs); finishes about 12:00 to 17:00 Fri 6 |
+| E3 | option A, ultrasound-aware augmentation (`nnUNetTrainerUSAug_250epochs`), fold 0 | 501 and 502 | "baseline vs improved" in report 4 | decided 5 Nov; starts by itself after E1 and E2, finishes about Sat 7 23:00 to Sun 8 11:00 |
 
 Training length: decided 4 Nov, `_250epochs` for every run (E1, E2, E3), so they stay comparable. 1000 epochs (nnU-Net's default) would take about 84 h per run on the Mac. Timing runs (4 Nov): E0 alone, then 501 and 502 at the same time (does running two at once give more total work?), then 5 epochs each of E3 candidates A and B. The hours from 5-epoch runs are a lower bound (heat throttling over a long run is not visible in 5 epochs).
 
@@ -60,7 +60,7 @@ Options for E3. Chosen on the argument and the hours per run, **not** on Dice fr
 
 B and C (Nana, 5 Nov): run them on the NVIDIA workstation, see "Workstation: B and C" below.
 - On the Mac, the 4 missing folds of C take about 84 h per dataset, so C cannot finish there before 11 Nov.
-- Fallback if the workstation does not work out: B on 501 on the Mac, queued after A (about 34 h, so done about Mon 9 08:30). Report it only if it finishes and is analysed in time. Decide before Sat 7 22:30.
+- Fallback if the workstation does not work out: B on 501 on the Mac, queued after A (about 34 h, so done about Mon 9 09:00 to 21:00, after the Mon 9 08:00 results deadline). Report it only if it finishes and is analysed in time. Decide before E3 finishes.
 - Whatever is not run, the report lists as a limitation with the reason (one run takes 21 to 34 h on the Mac). Training only fold 0, instead of nnU-Net's standard 5-fold ensemble, must be stated anyway for E1 to E3.
 
 A's caveat for the report: A also limits test-time flip averaging to left-right, so the training augmentation and the inference flips change together. `test-variants` reports both models with flip averaging off, which separates the two effects.
@@ -78,6 +78,7 @@ Rules, fixed before any results:
 - Compare only within one machine: B and C against W0. A workstation number is never put next to a Mac number as if only the model changed (precision and `torch.compile` differ).
 - B vs W0: the same rule as E3 (`compare`): on the 39 fold-0 validation images, adopt only if mean Dice rises; both are reported on test. `select` and `test-variants` run for W0 and for B, as for every trained run.
 - C has no untouched validation images (each fold's validation images trained the other four models), so the validation rule cannot choose it. It is reported on test next to W0, with the paired difference and its CI. The 5-fold cross-validation Dice (each training image predicted by the one model that did not train on it) is reported in section 3 as a steadier estimate than 39 images.
+- Runs may train at the same time on the workstation. That changes how fast they go, not what is compared (README step 5 has the limits).
 - Order: timing first, then W0, B, C. Results are needed by Mon 9 Nov 08:00 (section 4). After the timing, plan only what fits by then, with slack. 502 only if everything else is done early.
 - Results come back through git: `run.py records --machine workstation` (`docs/results/workstation/`).
 
@@ -108,8 +109,8 @@ Metrics: Dice per test image; mean with bootstrap 95% CI, median, minimum; IoU. 
 |---|---|---|
 | Wed 4 | set up environment, run E0 | read the nnU-Net paper (resources 1, 4) |
 | Thu 5 | E1 and E2 training (started 00:09); workstation: set up, time, start W0 | send section 2 outline; agree it together |
-| Fri 6 | E1 and E2 finish about 11:30, E3 starts by itself; run E1/E2 analyses | write section 2 |
-| Sat 7 | E1/E2 results and figures; E3 finishes about 22:30 | section 2 draft to Nana |
+| Fri 6 | E1 and E2 finish about 12:00 to 17:00, E3 starts by itself; run E1/E2 analyses | write section 2 |
+| Sat 7 | E1/E2 results and figures; E3 training (finishes Sat 7 23:00 to Sun 8 11:00) | section 2 draft to Nana |
 | Sun 8 | E3 analyses (`compare`); draft sections 1 and 3 | revise section 2; slide template |
 | Mon 9 | section 4; merge report v1 | slides for intro and model |
 | Tue 10 | both: full slide deck, rehearse twice with a timer, fix gaps | both: full slide deck, rehearse twice with a timer, fix gaps |
@@ -136,7 +137,7 @@ Speakers: OPEN. The brief says everyone speaks, so aim for about 7:30 each. Both
 - Work split and speakers (owner and speaker columns cleared 4 Nov; decide together).
 - Section 2 outline (Thu 5).
 - Workstation (W0, B, C): what fits before Mon 9 08:00 is decided after its timing on Thu 5.
-- Fallback B on the Mac after E3 (done about Mon 9 08:30): only if the workstation does not work out; decide before Sat 7 22:30.
+- Fallback B on the Mac after E3 (done about Mon 9 09:00 to 21:00, after the results deadline): only if the workstation does not work out; decide before E3 finishes.
 - Decided 5 Nov: E3 is option A on 501 and 502 (Nana); B and C on the NVIDIA workstation, compared with W0 there. Training length 250 epochs for all runs (4 Nov). 5-fold does not fit on the Mac (about 84 h per dataset for the 4 missing folds).
 - Who merges the report; slide design owner.
 - Decided 4 Nov: headline uses `checkpoint_final`; `checkpoint_best` reported only as overfitting evidence.

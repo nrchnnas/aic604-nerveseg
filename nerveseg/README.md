@@ -94,8 +94,8 @@ E1, E2 and E3 train on the Mac. The workstation trains its own default run **W0*
    python nerveseg/nnunet/run.py timing -d 501
    python nerveseg/nnunet/run.py timing -d 501 -p nnUNetResEncUNetMPlans
    ```
-   Each prints seconds per epoch and the hours for 250 epochs. If one run uses less than half of the GPU memory (`nvidia-smi`), also time two at once (two terminals, `-d 501` and `-d 502`). Add a "Workstation" section to `docs/timing/SUMMARY.md`.
-5. Decide what fits before **Mon 9 Nov 08:00** (report section 4 is written on Monday). All runs are 250 epochs on 501, in this order:
+   Each prints seconds per epoch and the hours for 250 epochs. Note each run's GPU memory in `nvidia-smi`. If the two together fit in the card's memory, time them again at the same time (the same two commands in two terminals, started a minute apart). Add a "Workstation" section to `docs/timing/SUMMARY.md` with the time per epoch alone and together.
+5. Decide what fits before **Mon 9 Nov 08:00** (report section 4 is written on Monday). All runs are 250 epochs on 501:
    ```
    python nerveseg/nnunet/run.py train -d 501 -t nnUNetTrainer_250epochs                             # W0 = fold 0
    python nerveseg/nnunet/run.py train -d 501 -t nnUNetTrainer_250epochs -p nnUNetResEncUNetMPlans   # B
@@ -105,7 +105,12 @@ E1, E2 and E3 train on the Mac. The workstation trains its own default run **W0*
    python nerveseg/nnunet/run.py train -d 501 -t nnUNetTrainer_250epochs -f 4
    ```
    W0 is needed by both B and C. B costs 1 run plus W0; C costs 4 runs plus W0. If only part fits, do W0 and B, and C only if all 4 folds fit.
-   - Two runs at once, if the timing showed it helps: start them in two terminals. With two GPUs, put one run on each: `CUDA_VISIBLE_DEVICES=1 python ...` (Linux) or `$env:CUDA_VISIBLE_DEVICES=1` first (PowerShell).
+   - Runs can train at the same time, each in its own terminal. That changes the speed, not the comparison: B and C are still compared with W0 on this machine.
+   - It pays off when each run's seconds per epoch with N runs at once is less than N times its time alone (step 4 measures this for N = 2). On the Mac, two at once gave only about 12% more total work.
+   - Limits: the runs' GPU memory together must fit the card; each run starts 12 data-loading workers plus itself, so if the CPU has fewer threads than runs x 13, set `nnUNet_n_proc_DA` lower (for example 6) before starting.
+   - Suggested grouping: W0 and B together first (B's comparison needs both), then folds 1 to 4, two at a time (or all four if memory and CPU allow).
+   - Sharing the data is safe: the preprocessed data is in blosc2 format (`.b2nd`), which nnU-Net only reads during training (its unpack step does nothing for this format; checked in nnunetv2 2.8.1). Each run writes to its own folder. Start runs about a minute apart, because each start rewrites `splits_final.json` (same content). Do not run `preprocess` while anything trains.
+   - With two GPUs, put one run on each: `CUDA_VISIBLE_DEVICES=1 python ...` (Linux) or `$env:CUDA_VISIBLE_DEVICES=1` first (PowerShell).
    - Keep the machine from sleeping (Windows: power plan "never sleep" while plugged in).
    - An interrupted run continues with the same command plus `--resume`.
    - If `torch.compile` fails on Linux, set `nnUNet_compile=f` and note it in `env_workstation.txt`.
@@ -133,7 +138,7 @@ E1, E2 and E3 train on the Mac. The workstation trains its own default run **W0*
 
 ### Using Claude Code on the workstation
 Open Claude Code in the `comp-vision` folder and paste:
-> Read nerveseg/PLAN.md and nerveseg/README.md, section "On the NVIDIA workstation: options B and C". Do steps 1 to 4, then report the measured seconds per epoch and an hours table (lower bound), and recommend what fits before Mon 9 Nov 08:00. Do not start the long training runs until I agree. Keep every comparison on this machine (B and C vs W0). Records go in the repo (step 7), not a scratchpad. Never commit the course zip or nerveseg/data/raw/.
+> Read nerveseg/PLAN.md and nerveseg/README.md, section "On the NVIDIA workstation: options B and C". Do steps 1 to 4, then report the measured seconds per epoch and an hours table (lower bound), and recommend what fits before Mon 9 Nov 08:00, including which runs to train at the same time (step 5). Do not start the long training runs until I agree. Keep every comparison on this machine (B and C vs W0). Records go in the repo (step 7), not a scratchpad. Never commit the course zip or nerveseg/data/raw/.
 
 ## Running experiments (any OS)
 ```
