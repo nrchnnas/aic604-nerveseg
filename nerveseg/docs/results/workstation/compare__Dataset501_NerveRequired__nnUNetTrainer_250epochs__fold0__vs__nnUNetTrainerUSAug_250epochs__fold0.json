@@ -1,0 +1,84 @@
+{
+  "dataset": "Dataset501_NerveRequired",
+  "fold": 0,
+  "rule": "adopt only if mean validation Dice is higher; both are reported on test",
+  "validation": {
+    "question": "use nnUNetTrainerUSAug_250epochs, final checkpoint, flip averaging on instead of nnUNetTrainer_250epochs, final checkpoint, flip averaging on?",
+    "baseline": "nnUNetTrainer_250epochs, final checkpoint, flip averaging on",
+    "candidate": "nnUNetTrainerUSAug_250epochs, final checkpoint, flip averaging on",
+    "baseline_summary": {
+      "n": 39,
+      "mean_dice": 0.7244331110663672,
+      "ci95": [
+        0.6476278496661534,
+        0.7866266991269157
+      ],
+      "median_dice": 0.8159722222222222,
+      "min_dice": 0.0,
+      "mean_iou": 0.6038906676513729
+    },
+    "candidate_summary": {
+      "n": 39,
+      "mean_dice": 0.6677233802138718,
+      "ci95": [
+        0.6022918997255773,
+        0.7276684248266446
+      ],
+      "median_dice": 0.7349128296826106,
+      "min_dice": 0.1560130010834236,
+      "mean_iou": 0.5318931587518029
+    },
+    "paired_candidate_minus_baseline": {
+      "n": 39,
+      "mean_diff": -0.05670973085249557,
+      "ci95": [
+        -0.1496191267086003,
+        0.03866441531965158
+      ],
+      "better": 13,
+      "worse": 26,
+      "equal": 0,
+      "n_only_in_one": 0
+    },
+    "adopt_candidate": false,
+    "ci_includes_zero": true
+  },
+  "test": {
+    "baseline": "nnUNetTrainer_250epochs, final checkpoint, flip averaging on",
+    "baseline_summary": {
+      "n": 60,
+      "mean_dice": 0.8223843459302228,
+      "ci95": [
+        0.7779350837464452,
+        0.8599105503766935
+      ],
+      "median_dice": 0.8682310972380927,
+      "min_dice": 0.015267175572519083,
+      "mean_iou": 0.7223007583430475
+    },
+    "candidate": "nnUNetTrainerUSAug_250epochs, final checkpoint, flip averaging on",
+    "candidate_summary": {
+      "n": 60,
+      "mean_dice": 0.812552258992334,
+      "ci95": [
+        0.7709182451076668,
+        0.8504729656160812
+      ],
+      "median_dice": 0.8702248078934891,
+      "min_dice": 0.08846153846153847,
+      "mean_iou": 0.708199989241924
+    },
+    "paired_candidate_minus_baseline": {
+      "n": 60,
+      "mean_diff": -0.009832086937888812,
+      "ci95": [
+        -0.04426091908420745,
+        0.024388785860169133
+      ],
+      "better": 27,
+      "worse": 33,
+      "equal": 0,
+      "n_only_in_one": 0
+    }
+  }
+}

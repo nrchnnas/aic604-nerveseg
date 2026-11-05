@@ -1,0 +1,111 @@
+{
+  "dataset": "Dataset501_NerveRequired",
+  "trainer": "nnUNetTrainerUSAug_250epochs",
+  "plans": "nnUNetPlans",
+  "fold": 0,
+  "n_validation_images": 39,
+  "decided": "2026-11-05 21:18:13",
+  "rule": "adopt a variant only if it raises mean validation Dice; flip averaging first, then the clean-up",
+  "mirror_axes_of_this_trainer": [
+    1
+  ],
+  "flip_averaging": {
+    "question": "flip averaging: turn it off?",
+    "baseline": "nnUNetTrainerUSAug_250epochs, final checkpoint, flip averaging on",
+    "candidate": "nnUNetTrainerUSAug_250epochs, final checkpoint, flip averaging off",
+    "baseline_summary": {
+      "n": 39,
+      "mean_dice": 0.6677233802138718,
+      "ci95": [
+        0.6022918997255773,
+        0.7276684248266446
+      ],
+      "median_dice": 0.7349128296826106,
+      "min_dice": 0.1560130010834236,
+      "mean_iou": 0.5318931587518029
+    },
+    "candidate_summary": {
+      "n": 39,
+      "mean_dice": 0.706474290252016,
+      "ci95": [
+        0.6569495832050376,
+        0.753627902816207
+      ],
+      "median_dice": 0.7452200978212539,
+      "min_dice": 0.3152073732718894,
+      "mean_iou": 0.5669583104455725
+    },
+    "paired_candidate_minus_baseline": {
+      "n": 39,
+      "mean_diff": 0.03875091003814426,
+      "ci95": [
+        0.018486118901941368,
+        0.062317871940933016
+      ],
+      "better": 26,
+      "worse": 13,
+      "equal": 0,
+      "n_only_in_one": 0
+    },
+    "adopt_candidate": true,
+    "ci_includes_zero": false,
+    "use_flip_averaging": false
+  },
+  "cleanup": {
+    "question": "clean-up: keep only the largest region?",
+    "baseline": "nnUNetTrainerUSAug_250epochs, final checkpoint, flip averaging off",
+    "candidate": "nnUNetTrainerUSAug_250epochs, final checkpoint, flip averaging off, largest region only",
+    "baseline_summary": {
+      "n": 39,
+      "mean_dice": 0.706474290252016,
+      "ci95": [
+        0.6569495832050376,
+        0.753627902816207
+      ],
+      "median_dice": 0.7452200978212539,
+      "min_dice": 0.3152073732718894,
+      "mean_iou": 0.5669583104455725
+    },
+    "candidate_summary": {
+      "n": 39,
+      "mean_dice": 0.6929421557502773,
+      "ci95": [
+        0.6151079784216958,
+        0.75940060704373
+      ],
+      "median_dice": 0.7575916230366492,
+      "min_dice": 0.0,
+      "mean_iou": 0.5674114012404001
+    },
+    "paired_candidate_minus_baseline": {
+      "n": 39,
+      "mean_diff": -0.013532134501738667,
+      "ci95": [
+        -0.05735725528365383,
+        0.02353423781727317
+      ],
+      "better": 7,
+      "worse": 4,
+      "equal": 28,
+      "n_only_in_one": 0
+    },
+    "adopt_candidate": false,
+    "ci_includes_zero": true,
+    "use_cleanup": false,
+    "base_tta": false,
+    "postprocess_stats": {
+      "n_masks": 39,
+      "n_changed": 11,
+      "pixels_removed": 2191
+    }
+  },
+  "nnunet_cleanup_step": {
+    "command": "nnUNetv2_find_best_configuration 501 -c 2d -tr nnUNetTrainerUSAug_250epochs -p nnUNetPlans -f 0 --disable_ensembling",
+    "decided_on": "C:\\Users\\nirac\\aic604-nerveseg\\nerveseg\\nnunet\\nnUNet_results\\Dataset501_NerveRequired\\nnUNetTrainerUSAug_250epochs__nnUNetPlans__2d\\fold_0\\validation (final checkpoint, flip averaging on)",
+    "postprocessing_fns": [],
+    "keeps_largest_region": false,
+    "file": "C:\\Users\\nirac\\aic604-nerveseg\\nerveseg\\nnunet\\nnUNet_results\\Dataset501_NerveRequired\\nnUNetTrainerUSAug_250epochs__nnUNetPlans__2d\\crossval_results_folds_0\\postprocessing.json"
+  },
+  "note": "Our rule turned flip averaging off, but nnU-Net's clean-up step decided on its default validation result with flip averaging on, so the two clean-up decisions use different bases. Our decision counts.",
+  "selected": "Dataset501_NerveRequired__nnUNetTrainerUSAug_250epochs__fold0__notta"
+}

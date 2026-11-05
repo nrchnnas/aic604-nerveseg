@@ -1,0 +1,95 @@
+Check run 2026-11-05 on the workstation: Dice of each single view, no averaging, on the 39 fold-0 validation images of 501.
+Why: left-right flip averaging lowers A's Dice, while flip averaging raises W0's. Result: the trainer flips the intended axis.
+The normal view reproduces the no-flip Dice from evaluate.py (A 0.7065, W0 0.6793), which checks the script.
+
+=== A: allowed mirror axes in the checkpoint (1,)
+normal               mean Dice 0.7065  median 0.7452  min 0.3152
+left-right flipped   mean Dice 0.6384  median 0.7327  min 0.0981
+top-bottom flipped   mean Dice 0.2829  median 0.3488  min 0.0000
+normal vs left-right prediction overlap: mean 0.8306  min 0.2674
+largest drops, left-right view against normal view:
+  nerve_275  normal 0.438  left-right 0.098  top-bottom 0.443  overlap 0.701
+  nerve_278  normal 0.448  left-right 0.126  top-bottom 0.670  overlap 0.267
+  nerve_272  normal 0.555  left-right 0.243  top-bottom 0.374  overlap 0.654
+  nerve_274  normal 0.556  left-right 0.329  top-bottom 0.179  overlap 0.771
+  nerve_281  normal 0.558  left-right 0.353  top-bottom 0.483  overlap 0.714
+  nerve_276  normal 0.474  left-right 0.278  top-bottom 0.605  overlap 0.784
+=== W0: allowed mirror axes in the checkpoint (0, 1)
+normal               mean Dice 0.6793  median 0.7573  min 0.0000
+left-right flipped   mean Dice 0.7010  median 0.7961  min 0.0000
+top-bottom flipped   mean Dice 0.7388  median 0.7893  min 0.0000
+normal vs left-right prediction overlap: mean 0.8554  min 0.4970
+largest drops, left-right view against normal view:
+  nerve_227  normal 0.249  left-right 0.170  top-bottom 0.786  overlap 0.497
+  nerve_274  normal 0.788  left-right 0.719  top-bottom 0.778  overlap 0.681
+  nerve_275  normal 0.862  left-right 0.824  top-bottom 0.841  overlap 0.838
+  nerve_281  normal 0.841  left-right 0.807  top-bottom 0.877  overlap 0.779
+  nerve_250  normal 0.762  left-right 0.737  top-bottom 0.751  overlap 0.948
+  nerve_288  normal 0.685  left-right 0.662  top-bottom 0.513  overlap 0.816
+
+
+----- script -----
+"""Read-only check: Dice of each single view on the 39 fold-0 validation images, no averaging.
+
+Why: left-right flip averaging lowers A's Dice while flip averaging raises W0's and B's. If a flipped view is far
+worse than the normal view in A although A trains with left-right flips, the trainer may not flip what we think.
+The normal view must reproduce the no-flip Dice from evaluate.py (A 0.7065, W0 0.6793), which checks this script.
+"""
+import json
+import os
+from pathlib import Path
+
+import numpy as np
+import torch
+
+N = Path(r"C:\Users\nirac\aic604-nerveseg\nerveseg\nnunet")
+os.environ.update(nnUNet_raw=str(N / "nnUNet_raw"), nnUNet_preprocessed=str(N / "nnUNet_preprocessed"),
+                  nnUNet_results=str(N / "nnUNet_results"), nnUNet_extTrainer=str(N / "trainers"))
+
+from nnunetv2.imageio.natural_image_reader_writer import NaturalImage2DIO  # noqa: E402
+from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor  # noqa: E402
+
+DS = "Dataset501_NerveRequired"
+RAW = N / "nnUNet_raw" / DS
+MODELS = {"A": "nnUNetTrainerUSAug_250epochs__nnUNetPlans__2d", "W0": "nnUNetTrainer_250epochs__nnUNetPlans__2d"}
+
+
+def dice(a: np.ndarray, b: np.ndarray) -> float:
+    s = a.sum() + b.sum()
+    return 1.0 if s == 0 else float(2 * np.logical_and(a, b).sum() / s)
+
+
+def main() -> None:
+    val = json.load(open(N / "nnUNet_preprocessed" / DS / "splits_final.json"))[0]["val"]
+    io = NaturalImage2DIO()
+    for name, folder in MODELS.items():
+        p = nnUNetPredictor(tile_step_size=0.5, use_gaussian=True, use_mirroring=False,
+                            perform_everything_on_device=True, device=torch.device("cuda"), verbose=False,
+                            verbose_preprocessing=False, allow_tqdm=False)
+        p.initialize_from_trained_model_folder(str(N / "nnUNet_results" / DS / folder), use_folds=(0,),
+                                               checkpoint_name="checkpoint_final.pth")
+        print(f"=== {name}: allowed mirror axes in the checkpoint {p.allowed_mirroring_axes}", flush=True)
+        scores = {"normal": [], "left-right flipped": [], "top-bottom flipped": []}
+        agree = []
+        rows = []
+        for case in val:
+            img, props = io.read_images([str(RAW / "imagesTr" / f"{case}_0000.png")])
+            gt = io.read_seg(str(RAW / "labelsTr" / f"{case}.png"))[0][0] > 0
+            normal = p.predict_single_npy_array(img, props, None, None, False)[0] > 0
+            lr = p.predict_single_npy_array(img[..., ::-1].copy(), props, None, None, False)[0][..., ::-1] > 0
+            tb = p.predict_single_npy_array(img[..., ::-1, :].copy(), props, None, None, False)[0][..., ::-1, :] > 0
+            d = (dice(normal, gt), dice(lr, gt), dice(tb, gt))
+            for k, v in zip(scores, d):
+                scores[k].append(v)
+            agree.append(dice(normal, lr))
+            rows.append((case, *d, agree[-1]))
+        for k, v in scores.items():
+            print(f"{k:20s} mean Dice {np.mean(v):.4f}  median {np.median(v):.4f}  min {np.min(v):.4f}", flush=True)
+        print(f"normal vs left-right prediction overlap: mean {np.mean(agree):.4f}  min {np.min(agree):.4f}")
+        print("largest drops, left-right view against normal view:")
+        for r in sorted(rows, key=lambda x: x[2] - x[1])[:6]:
+            print(f"  {r[0]}  normal {r[1]:.3f}  left-right {r[2]:.3f}  top-bottom {r[3]:.3f}  overlap {r[4]:.3f}")
+
+
+if __name__ == "__main__":
+    main()
