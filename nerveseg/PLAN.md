@@ -70,8 +70,8 @@ Every result in the report comes from this machine; the Mac runs were stopped (N
 | ID | What | Purpose | Status |
 |---|---|---|---|
 | W0 | default nnU-Net (`nnUNetTrainer_250epochs`), fold 0 | main result (E1): nnU-Net's Dice on the 60 test images; baseline for A, B and C; fold 0 of C | trained 12:00 to 14:28 Thu 5 Nov (34.7 s per epoch, `docs/timing/SUMMARY.md`); analyses done, in `docs/results/workstation/` |
-| WB | option B, ResEnc M (`-p nnUNetResEncUNetMPlans`), fold 0 | "baseline vs improved": nnU-Net's recommended bigger network | training since 14:28 Thu 5 Nov (timing: 58.4 s per epoch), finishes about 18:30. Not at the same time as W0: sharing the GPU was slower (about 9 h vs 6.5 h) |
-| WA | option A (`nnUNetTrainerUSAug_250epochs`), fold 0 | option A on 501 (E3), compared with W0 | queued: starts after W0 and WB pass their checks, about 19:00 Thu 5 Nov; finishes about 21:25 |
+| WB | option B, ResEnc M (`-p nnUNetResEncUNetMPlans`), fold 0 | "baseline vs improved": nnU-Net's recommended bigger network | trained 14:28 to 18:41 Thu 5 Nov (median 58.5 s per epoch); analyses done, in `docs/results/workstation/`. `compare` keeps W0: validation Dice 0.7226 vs 0.7244 (difference -0.0018, CI -0.0706 to +0.0784); test 0.8298 vs 0.8224. Not at the same time as W0: sharing the GPU was slower (about 9 h vs 6.5 h) |
+| WA | option A (`nnUNetTrainerUSAug_250epochs`), fold 0 | option A on 501 (E3), compared with W0 | starts about 18:55 Thu 5 Nov, W0 and WB passed their checks; finishes about 21:25 |
 | W2 | default (`nnUNetTrainer_250epochs`), fold 0, on 502 | leakage comparison with W0 (E2) | queued after WA; finishes about 23:50 Thu 5 Nov |
 | WA2 | option A, fold 0, on 502 | option A on 502 (E3), compared with W2 | queued after W2; finishes about 02:15 Fri 6 Nov |
 | WC | option C, default folds 1 to 4, then the average of the 5 folds' models on test (`run.py ensemble`) | "baseline vs improved": nnU-Net's standard 5-fold ensemble; also the 5-fold cross-validation Dice on all 240 training images | queued after WA2; finishes about 11:50 Fri 6 Nov |
