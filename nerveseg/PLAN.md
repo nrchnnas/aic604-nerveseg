@@ -66,20 +66,23 @@ B and C (Nana, 5 Nov): run them on the NVIDIA workstation, see "Workstation: B a
 A's caveat for the report: A also limits test-time flip averaging to left-right, so the training augmentation and the inference flips change together. `test-variants` reports both models with flip averaging off, which separates the two effects.
 
 ## Workstation: B and C (Nana, 5 Nov; steps and commands in README, "On the NVIDIA workstation")
-E1, E2 and E3 stay on the Mac; E1 stays the headline. The workstation trains, all with 250 epochs on 501:
+E1, E2 and E3 stay on the Mac; E1 stays the headline for now (see OPEN). The workstation trains, all with 250 epochs, on 501 unless stated. Added 5 Nov after timing: WA, W2 and WA2 repeat the Mac experiments on the workstation (W0 already repeats E1). With them, A, B and C can all be compared with W0, and three same-setup pairs show how much Dice moves between machines, not just W0 vs E1.
 
 | ID | What | Purpose | Status |
 |---|---|---|---|
-| W0 | default nnU-Net (`nnUNetTrainer_250epochs`), fold 0 | baseline for B and C on the same machine; fold 0 of C. W0 vs E1 (same setup, two machines) shows how much Dice moves between two runs, which helps judge whether a difference of a few points means anything. | timing done (`docs/timing/SUMMARY.md`: 34.7 s per epoch); training since 12:00 Thu 5 Nov, finishes about 14:25 |
-| WB | option B, ResEnc M (`-p nnUNetResEncUNetMPlans`), fold 0 | "baseline vs improved": nnU-Net's recommended bigger network | timing done (58.4 s per epoch); starts by itself after W0, finishes about 18:30 Thu 5 Nov. Not at the same time as W0: sharing the GPU was slower (about 9 h vs 6.5 h) |
-| WC | option C, default folds 1 to 4, then the average of the 5 folds' models on test (`run.py ensemble`) | "baseline vs improved": nnU-Net's standard 5-fold ensemble; also the 5-fold cross-validation Dice on all 240 training images | after WB, only if all 4 folds fit |
+| W0 | default nnU-Net (`nnUNetTrainer_250epochs`), fold 0 | baseline for B and C on the same machine; fold 0 of C. W0 vs E1 (same setup, two machines) shows how much Dice moves between two runs, which helps judge whether a difference of a few points means anything. | trained 12:00 to 14:28 Thu 5 Nov (34.7 s per epoch, `docs/timing/SUMMARY.md`); analyses done, in `docs/results/workstation/` |
+| WB | option B, ResEnc M (`-p nnUNetResEncUNetMPlans`), fold 0 | "baseline vs improved": nnU-Net's recommended bigger network | training since 14:28 Thu 5 Nov (timing: 58.4 s per epoch), finishes about 18:30. Not at the same time as W0: sharing the GPU was slower (about 9 h vs 6.5 h) |
+| WA | option A (`nnUNetTrainerUSAug_250epochs`), fold 0 | A against W0 on one machine; repeat of E3 on 501 | queued: starts after W0 and WB pass their checks, about 19:00 Thu 5 Nov; finishes about 21:25 |
+| W2 | default (`nnUNetTrainer_250epochs`), fold 0, on 502 | leakage comparison on this machine; repeat of E2 | queued after WA; finishes about 23:50 Thu 5 Nov |
+| WA2 | option A, fold 0, on 502 | repeat of E3 on 502 | queued after W2; finishes about 02:15 Fri 6 Nov |
+| WC | option C, default folds 1 to 4, then the average of the 5 folds' models on test (`run.py ensemble`) | "baseline vs improved": nnU-Net's standard 5-fold ensemble; also the 5-fold cross-validation Dice on all 240 training images | queued after WA2; finishes about 11:50 Fri 6 Nov |
 
 Rules, fixed before any results:
 - Compare only within one machine: B and C against W0. A workstation number is never put next to a Mac number as if only the model changed (precision and `torch.compile` differ).
 - B vs W0: the same rule as E3 (`compare`): on the 39 fold-0 validation images, adopt only if mean Dice rises; both are reported on test. `select` and `test-variants` run for W0 and for B, as for every trained run.
 - C has no untouched validation images (each fold's validation images trained the other four models), so the validation rule cannot choose it. It is reported on test next to W0, with the paired difference and its CI. The 5-fold cross-validation Dice (each training image predicted by the one model that did not train on it) is reported in section 3 as a steadier estimate than 39 images.
 - Runs may train at the same time on the workstation. That changes how fast they go, not what is compared (README step 5 has the limits).
-- Order: timing first, then W0, B, C. Results are needed by Mon 9 Nov 08:00 (section 4). After the timing, plan only what fits by then, with slack. 502 only if everything else is done early.
+- Order: timing first, then W0, B; check that W0 and B are usable in the report; then WA, W2, WA2, C, one at a time. Results are needed by Mon 9 Nov 08:00 (section 4). The whole queue is planned to finish about Fri 6 Nov 12:00.
 - Results come back through git: `run.py records --machine workstation` (`docs/results/workstation/`).
 
 ## Analyses on every trained run (agreed by Nana 4 Nov; run for E1 and E2, and E3)
@@ -136,7 +139,7 @@ Speakers: OPEN. The brief says everyone speaks, so aim for about 7:30 each. Both
 ## OPEN
 - Work split and speakers (owner and speaker columns cleared 4 Nov; decide together).
 - Section 2 outline (Thu 5).
-- Workstation (W0, B, C): what fits before Mon 9 08:00 is decided after its timing on Thu 5.
+- Which machine's numbers lead the report: E1 on the Mac (the current plan) or W0 on the workstation. Decide once both sets of results exist.
 - Fallback B on the Mac after E3 (done about Mon 9 09:00 to 21:00, after the results deadline): only if the workstation does not work out; decide before E3 finishes.
 - Decided 5 Nov: E3 is option A on 501 and 502 (Nana); B and C on the NVIDIA workstation, compared with W0 there. Training length 250 epochs for all runs (4 Nov). 5-fold does not fit on the Mac (about 84 h per dataset for the 4 missing folds).
 - Who merges the report; slide design owner.
