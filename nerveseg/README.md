@@ -67,7 +67,7 @@ python nerveseg/nnunet/run.py preprocess --planner nnUNetPlannerResEncM   # need
 The rebuild keeps the saved split files, so both machines use exactly the same splits; `git status` should show no change in `data/splits/` or `nnunet/splits/`. Raw images contain patient details: do not upload `data/raw/` or the course zip anywhere public.
 
 ## On the NVIDIA workstation: options B and C (from Thu 5 Nov)
-E1, E2 and E3 train on the Mac. The workstation trains its own default run **W0**, then **B** (ResEnc M) and **C** (5-fold ensemble). B and C are compared only with W0, never with a Mac number, because the two machines also differ in precision (the Mac runs 32-bit; NVIDIA runs mixed 16/32-bit) and in `torch.compile`. W0 vs E1 (same setup, two machines) shows how much Dice moves between two runs. Plan and rules: `PLAN.md`, "Workstation: B and C".
+Every reported result comes from the workstation (Nana, 5 Nov); the Mac runs were stopped. The workstation trains the default run **W0** (the main result), **B** (ResEnc M), **A** on 501 and 502 (WA, WA2), the default on 502 (W2) and **C** (5-fold ensemble). A, B and C are compared with W0. Plan and rules: `PLAN.md`, "Workstation runs".
 
 1. Get the code (the cropped data comes with it; the course zip and raw images are not in git and are not needed):
    ```
