@@ -70,8 +70,8 @@ E1, E2 and E3 stay on the Mac; E1 stays the headline. The workstation trains, al
 
 | ID | What | Purpose | Status |
 |---|---|---|---|
-| W0 | default nnU-Net (`nnUNetTrainer_250epochs`), fold 0 | baseline for B and C on the same machine; fold 0 of C. W0 vs E1 (same setup, two machines) shows how much Dice moves between two runs, which helps judge whether a difference of a few points means anything. | after timing |
-| WB | option B, ResEnc M (`-p nnUNetResEncUNetMPlans`), fold 0 | "baseline vs improved": nnU-Net's recommended bigger network | after W0 |
+| W0 | default nnU-Net (`nnUNetTrainer_250epochs`), fold 0 | baseline for B and C on the same machine; fold 0 of C. W0 vs E1 (same setup, two machines) shows how much Dice moves between two runs, which helps judge whether a difference of a few points means anything. | timing done (`docs/timing/SUMMARY.md`: 34.7 s per epoch); training since 12:00 Thu 5 Nov, finishes about 14:25 |
+| WB | option B, ResEnc M (`-p nnUNetResEncUNetMPlans`), fold 0 | "baseline vs improved": nnU-Net's recommended bigger network | timing done (58.4 s per epoch); starts by itself after W0, finishes about 18:30 Thu 5 Nov. Not at the same time as W0: sharing the GPU was slower (about 9 h vs 6.5 h) |
 | WC | option C, default folds 1 to 4, then the average of the 5 folds' models on test (`run.py ensemble`) | "baseline vs improved": nnU-Net's standard 5-fold ensemble; also the 5-fold cross-validation Dice on all 240 training images | after WB, only if all 4 folds fit |
 
 Rules, fixed before any results:

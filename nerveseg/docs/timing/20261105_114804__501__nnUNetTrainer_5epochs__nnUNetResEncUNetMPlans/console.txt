@@ -1,0 +1,151 @@
+C:\Users\nirac\anaconda3\envs\nerveseg\Lib\site-packages\torch\jit\_script.py:1643: FutureWarning: `torch.jit.interface` is deprecated. Please use `torch.compile` instead.
+  warnings.warn(
+Using device: cuda:0
+
+#######################################################################
+Please cite the following paper when using nnU-Net:
+Isensee, F., Jaeger, P. F., Kohl, S. A., Petersen, J., & Maier-Hein, K. H. (2021). nnU-Net: a self-configuring method for deep learning-based biomedical image segmentation. Nature methods, 18(2), 203-211.
+#######################################################################
+
+2026-11-05 11:48:16.428940: do_dummy_2d_data_aug: False
+2026-11-05 11:48:16.433943: Using splits from existing split file: C:\Users\nirac\aic604-nerveseg\nerveseg\nnunet\nnUNet_preprocessed\Dataset501_NerveRequired\splits_final.json
+2026-11-05 11:48:16.436943: The split file contains 5 splits.
+2026-11-05 11:48:16.438943: Desired fold for training: 0
+2026-11-05 11:48:16.440942: This split has 201 training and 39 validation cases.
+using pin_memory on device 0
+using pin_memory on device 0
+
+This is the configuration used by this training:
+Configuration name: 2d
+ {'data_identifier': 'nnUNetPlans_2d', 'preprocessor_name': 'DefaultPreprocessor', 'batch_size': 13, 'patch_size': [448, 576], 'median_image_size_in_voxels': [544.0, 736.0], 'spacing': [1.0, 1.0], 'normalization_schemes': ['ZScoreNormalization'], 'use_mask_for_norm': [False], 'resampling_fn_data': 'resample_data_or_seg_to_shape', 'resampling_fn_seg': 'resample_data_or_seg_to_shape', 'resampling_fn_data_kwargs': {'is_seg': False, 'order': 3, 'order_z': 0, 'force_separate_z': None}, 'resampling_fn_seg_kwargs': {'is_seg': True, 'order': 1, 'order_z': 0, 'force_separate_z': None}, 'resampling_fn_probabilities': 'resample_data_or_seg_to_shape', 'resampling_fn_probabilities_kwargs': {'is_seg': False, 'order': 1, 'order_z': 0, 'force_separate_z': None}, 'architecture': {'network_class_name': 'dynamic_network_architectures.architectures.unet.ResidualEncoderUNet', 'arch_kwargs': {'n_stages': 7, 'features_per_stage': [32, 64, 128, 256, 512, 512, 512], 'conv_op': 'torch.nn.modules.conv.Conv2d', 'kernel_sizes': [[3, 3], [3, 3], [3, 3], [3, 3], [3, 3], [3, 3], [3, 3]], 'strides': [[1, 1], [2, 2], [2, 2], [2, 2], [2, 2], [2, 2], [2, 2]], 'n_blocks_per_stage': [1, 3, 4, 6, 6, 6, 6], 'n_conv_per_stage_decoder': [1, 1, 1, 1, 1, 1], 'conv_bias': True, 'norm_op': 'torch.nn.modules.instancenorm.InstanceNorm2d', 'norm_op_kwargs': {'eps': 1e-05, 'affine': True}, 'dropout_op': None, 'dropout_op_kwargs': None, 'nonlin': 'torch.nn.LeakyReLU', 'nonlin_kwargs': {'inplace': True}}, '_kw_requires_import': ['conv_op', 'norm_op', 'dropout_op', 'nonlin']}, 'batch_dice': True} 
+
+These are the global plan.json settings:
+ {'dataset_name': 'Dataset501_NerveRequired', 'plans_name': 'nnUNetResEncUNetMPlans', 'original_median_spacing_after_transp': [999.0, 1.0, 1.0], 'original_median_shape_after_transp': [1, 544, 736], 'image_reader_writer': 'NaturalImage2DIO', 'transpose_forward': [0, 1, 2], 'transpose_backward': [0, 1, 2], 'experiment_planner_used': 'nnUNetPlannerResEncM', 'label_manager': 'LabelManager', 'foreground_intensity_properties_per_channel': {'0': {'max': 255.0, 'mean': 119.12772369384766, 'median': 116.0, 'min': 11.0, 'percentile_00_5': 40.0, 'percentile_99_5': 217.0, 'std': 38.33384704589844}}} 
+
+2026-11-05 11:48:31.325650: Unable to plot network architecture:
+2026-11-05 11:48:31.329649: No module named 'hiddenlayer'
+2026-11-05 11:48:31.476867: 
+2026-11-05 11:48:31.482867: Epoch 0
+2026-11-05 11:48:31.487867: Current learning rate: 0.01
+2026-11-05 11:51:49.356977: train_loss -0.1538
+2026-11-05 11:51:49.360980: val_loss -0.4248
+2026-11-05 11:51:49.365978: Pseudo dice [np.float32(0.4765)]
+2026-11-05 11:51:49.377977: Epoch time: 197.88 s
+2026-11-05 11:51:49.380383: Yayy! New best EMA pseudo Dice: 0.476500004529953
+2026-11-05 11:51:51.107841: 
+2026-11-05 11:51:51.120348: Epoch 1
+2026-11-05 11:51:51.133348: Current learning rate: 0.00818
+2026-11-05 11:54:36.930679: train_loss -0.6607
+2026-11-05 11:54:36.934680: val_loss -0.5392
+2026-11-05 11:54:36.936679: Pseudo dice [np.float32(0.5833)]
+2026-11-05 11:54:36.939679: Epoch time: 165.83 s
+2026-11-05 11:54:36.941680: Yayy! New best EMA pseudo Dice: 0.487199991941452
+2026-11-05 11:54:38.270182: 
+2026-11-05 11:54:38.274181: Epoch 2
+2026-11-05 11:54:38.276693: Current learning rate: 0.00631
+2026-11-05 11:55:39.107573: train_loss -0.7376
+2026-11-05 11:55:39.110572: val_loss -0.6206
+2026-11-05 11:55:39.113572: Pseudo dice [np.float32(0.6551)]
+2026-11-05 11:55:39.117572: Epoch time: 60.84 s
+2026-11-05 11:55:39.119965: Yayy! New best EMA pseudo Dice: 0.5040000081062317
+2026-11-05 11:55:40.343162: 
+2026-11-05 11:55:40.346664: Epoch 3
+2026-11-05 11:55:40.348666: Current learning rate: 0.00438
+2026-11-05 11:56:39.881032: train_loss -0.7696
+2026-11-05 11:56:39.881032: val_loss -0.6092
+2026-11-05 11:56:39.882034: Pseudo dice [np.float32(0.6569)]
+2026-11-05 11:56:39.883034: Epoch time: 59.54 s
+2026-11-05 11:56:39.884036: Yayy! New best EMA pseudo Dice: 0.5192999839782715
+2026-11-05 11:56:41.105179: 
+2026-11-05 11:56:41.109180: Epoch 4
+2026-11-05 11:56:41.111180: Current learning rate: 0.00235
+2026-11-05 11:57:40.630999: train_loss -0.7885
+2026-11-05 11:57:40.631999: val_loss -0.5328
+2026-11-05 11:57:40.632999: Pseudo dice [np.float32(0.5755)]
+2026-11-05 11:57:40.633999: Epoch time: 59.53 s
+2026-11-05 11:57:40.633999: Yayy! New best EMA pseudo Dice: 0.5249000191688538
+2026-11-05 11:57:43.649707: Training done.
+2026-11-05 11:57:43.731117: Using splits from existing split file: C:\Users\nirac\aic604-nerveseg\nerveseg\nnunet\nnUNet_preprocessed\Dataset501_NerveRequired\splits_final.json
+2026-11-05 11:57:43.735116: The split file contains 5 splits.
+2026-11-05 11:57:43.737116: Desired fold for training: 0
+2026-11-05 11:57:43.740118: This split has 201 training and 39 validation cases.
+2026-11-05 11:57:43.740118: predicting nerve_019
+2026-11-05 11:57:43.746121: nerve_019, shape torch.Size([1, 1, 541, 736]), rank 0
+2026-11-05 11:57:45.045557: predicting nerve_022
+2026-11-05 11:57:45.052558: nerve_022, shape torch.Size([1, 1, 541, 736]), rank 0
+2026-11-05 11:57:45.326251: predicting nerve_023
+2026-11-05 11:57:45.332251: nerve_023, shape torch.Size([1, 1, 541, 736]), rank 0
+2026-11-05 11:57:45.581335: predicting nerve_050
+2026-11-05 11:57:45.587335: nerve_050, shape torch.Size([1, 1, 542, 736]), rank 0
+2026-11-05 11:57:45.845107: predicting nerve_051
+2026-11-05 11:57:45.852303: nerve_051, shape torch.Size([1, 1, 542, 736]), rank 0
+2026-11-05 11:57:46.102450: predicting nerve_108
+2026-11-05 11:57:46.110450: nerve_108, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:46.370911: predicting nerve_110
+2026-11-05 11:57:46.377910: nerve_110, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:46.641150: predicting nerve_111
+2026-11-05 11:57:46.648154: nerve_111, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:46.927468: predicting nerve_112
+2026-11-05 11:57:46.936467: nerve_112, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:47.232272: predicting nerve_144
+2026-11-05 11:57:47.240270: nerve_144, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:47.960140: predicting nerve_146
+2026-11-05 11:57:47.969223: nerve_146, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:48.272199: predicting nerve_226
+2026-11-05 11:57:48.284200: nerve_226, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:48.586629: predicting nerve_227
+2026-11-05 11:57:48.596819: nerve_227, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:48.945274: predicting nerve_229
+2026-11-05 11:57:48.956279: nerve_229, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:49.283177: predicting nerve_230
+2026-11-05 11:57:49.291433: nerve_230, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:49.605680: predicting nerve_234
+2026-11-05 11:57:49.611679: nerve_234, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:49.940963: predicting nerve_248
+2026-11-05 11:57:49.948963: nerve_248, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:50.269820: predicting nerve_249
+2026-11-05 11:57:50.279820: nerve_249, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:50.541626: predicting nerve_250
+2026-11-05 11:57:50.548630: nerve_250, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:50.796342: predicting nerve_270
+2026-11-05 11:57:50.808344: nerve_270, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:51.049027: predicting nerve_272
+2026-11-05 11:57:51.056270: nerve_272, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:51.305332: predicting nerve_274
+2026-11-05 11:57:51.315332: nerve_274, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:51.590900: predicting nerve_275
+2026-11-05 11:57:51.599905: nerve_275, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:51.832528: predicting nerve_276
+2026-11-05 11:57:51.846532: nerve_276, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:52.091659: predicting nerve_277
+2026-11-05 11:57:52.097658: nerve_277, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:52.342411: predicting nerve_278
+2026-11-05 11:57:52.352412: nerve_278, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:52.602465: predicting nerve_279
+2026-11-05 11:57:52.609464: nerve_279, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:52.898957: predicting nerve_280
+2026-11-05 11:57:52.908957: nerve_280, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:53.151788: predicting nerve_281
+2026-11-05 11:57:53.159801: nerve_281, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:53.388351: predicting nerve_282
+2026-11-05 11:57:53.398442: nerve_282, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:53.654693: predicting nerve_283
+2026-11-05 11:57:53.662692: nerve_283, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:53.890448: predicting nerve_284
+2026-11-05 11:57:53.903447: nerve_284, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:54.150614: predicting nerve_285
+2026-11-05 11:57:54.159223: nerve_285, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:54.396098: predicting nerve_286
+2026-11-05 11:57:54.403098: nerve_286, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:54.632819: predicting nerve_288
+2026-11-05 11:57:54.643819: nerve_288, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:54.903069: predicting nerve_289
+2026-11-05 11:57:54.913068: nerve_289, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:55.154100: predicting nerve_290
+2026-11-05 11:57:55.164104: nerve_290, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:55.404202: predicting nerve_293
+2026-11-05 11:57:55.413202: nerve_293, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:55.652297: predicting nerve_294
+2026-11-05 11:57:55.659297: nerve_294, shape torch.Size([1, 1, 544, 736]), rank 0
+2026-11-05 11:57:58.988471: Validation complete
+2026-11-05 11:57:58.996470: Mean Validation Dice:  0.5308323079923952

@@ -1,0 +1,23 @@
+{
+  "epoch_times_s": [
+    197.88,
+    165.83,
+    60.84,
+    59.54,
+    59.53
+  ],
+  "mean_s_per_epoch_excluding_first": 86.435,
+  "seconds_after_last_epoch": 18.362471,
+  "log_notes": [
+    "do_dummy_2d_data_aug: False ",
+    "Using splits from existing split file: C:\\Users\\nirac\\aic604-nerveseg\\nerveseg\\nnunet\\nnUNet_preprocessed\\Dataset501_NerveRequired\\splits_final.json ",
+    "The split file contains 5 splits. ",
+    "Desired fold for training: 0 ",
+    "This split has 201 training and 39 validation cases. ",
+    "Using splits from existing split file: C:\\Users\\nirac\\aic604-nerveseg\\nerveseg\\nnunet\\nnUNet_preprocessed\\Dataset501_NerveRequired\\splits_final.json ",
+    "The split file contains 5 splits. ",
+    "Desired fold for training: 0 ",
+    "This split has 201 training and 39 validation cases. "
+  ],
+  "wall_clock_s": 595.7
+}

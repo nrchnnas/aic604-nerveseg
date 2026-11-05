@@ -1,0 +1,11 @@
+{
+  "started": "2026-11-05 11:47:04",
+  "dataset": "Dataset501_NerveRequired",
+  "trainer": "nnUNetTrainer_5epochs",
+  "plans": "nnUNetPlans",
+  "fold": 0,
+  "device": "cuda",
+  "machine": "Windows-10-10.0.26200-SP0",
+  "nnUNet_n_proc_DA": "not set (nnU-Net default)",
+  "power_problem": null
+}
