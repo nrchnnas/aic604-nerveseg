@@ -72,8 +72,8 @@ Every result in the report comes from this machine; the Mac runs were stopped (N
 | W0 | default nnU-Net (`nnUNetTrainer_250epochs`), fold 0 | main result (E1): nnU-Net's Dice on the 60 test images; baseline for A, B and C; fold 0 of C | trained 12:00 to 14:28 Thu 5 Nov (34.7 s per epoch, `docs/timing/SUMMARY.md`); analyses done, in `docs/results/workstation/` |
 | WB | option B, ResEnc M (`-p nnUNetResEncUNetMPlans`), fold 0 | "baseline vs improved": nnU-Net's recommended bigger network | trained 14:28 to 18:41 Thu 5 Nov (median 58.5 s per epoch); analyses done, in `docs/results/workstation/`. `compare` keeps W0: validation Dice 0.7226 vs 0.7244 (difference -0.0018, CI -0.0706 to +0.0784); test 0.8298 vs 0.8224. Not at the same time as W0: sharing the GPU was slower (about 9 h vs 6.5 h) |
 | WA | option A (`nnUNetTrainerUSAug_250epochs`), fold 0 | option A on 501 (E3), compared with W0 | trained 18:48 to 21:16 Thu 5 Nov (median 34.6 s per epoch); analyses done, in `docs/results/workstation/`. `compare` keeps W0: validation Dice 0.6677 vs 0.7244 (difference -0.0567, CI -0.1496 to +0.0387); test 0.8126 vs 0.8224. Flip averaging lowers A's Dice, so validation turned it off for A: validation 0.7065, test 0.8218 (`docs/results/workstation/flip_views_check.txt` shows the trainer flips the right axis) |
-| W2 | default (`nnUNetTrainer_250epochs`), fold 0, on 502 | leakage comparison with W0 (E2) | training since 21:16 Thu 5 Nov; finishes about 23:45 |
-| WA2 | option A, fold 0, on 502 | option A on 502 (E3), compared with W2 | queued after W2; finishes about 02:15 Fri 6 Nov |
+| W2 | default (`nnUNetTrainer_250epochs`), fold 0, on 502 | leakage comparison with W0 (E2) | trained 21:16 to 23:46 Thu 5 Nov (median 34.9 s per epoch); analyses done, in `docs/results/workstation/`. Validation Dice 0.4566 (CI 0.3288 to 0.5775), test 0.8342 (CI 0.8094 to 0.8564); flip averaging on, clean-up off. Do not read W2 against W0 on test as the leakage effect: see "Found after the results" below |
+| WA2 | option A, fold 0, on 502 | option A on 502 (E3), compared with W2 | training since 23:46 Thu 5 Nov; finishes about 02:15 Fri 6 Nov |
 | WC | option C, default folds 1 to 4, then the average of the 5 folds' models on test (`run.py ensemble`) | "baseline vs improved": nnU-Net's standard 5-fold ensemble; also the 5-fold cross-validation Dice on all 240 training images | queued after WA2; finishes about 11:50 Fri 6 Nov |
 
 Rules, fixed before any results:
@@ -83,6 +83,12 @@ Rules, fixed before any results:
 - Runs may train at the same time on the workstation. That changes how fast they go, not what is compared (README step 5 has the limits).
 - Order: timing first, then W0, B; check that W0 and B are usable in the report; then WA, W2, WA2, C, one at a time. Results are needed by Mon 9 Nov 08:00 (section 4). The whole queue is planned to finish about Fri 6 Nov 12:00.
 - Results come back through git: `run.py records --machine workstation` (`docs/results/workstation/`).
+
+Found after the results (5 Nov). The rules above and the decisions made with them stand; the report should state these. Numbers and script: `docs/results/workstation/cluster_check.txt`.
+- Validation images are not independent, because near-duplicates sit in clusters. 501 fold 0: 39 images from 11 clusters, 16 of them from cluster 38. 502 fold 0: 36 images from 3 clusters, 22 of them from cluster 12 (mean Dice 0.220, 12 images at 0). Validation decisions lean on these clusters, and CIs that resample clusters are wider.
+- W2 against W0 on test (0.8342 vs 0.8224) does not measure leakage, because the test sets differ. 502's test set has 63 images from 11 clusters, 40 of them from cluster 20, and larger nerves (median 3277 px vs 1922 px). Counting each cluster once: W2 0.7457, W0 0.7877.
+- Same-image comparison, W0 against W2, on W0's test images that W2 did not train on. With a near-duplicate in W0's training (n=16, 7 clusters): W0 0.8455, W2 0.6337, difference +0.2119, median +0.0491, W0 better on 15 of 16, CI by image +0.036 to +0.400, by cluster -0.098 to +0.487. Without one (n=5): W0 0.6942, W2 0.7578, difference -0.0635, CI by image -0.276 to +0.112. Five of the 16 are cluster 12 images, which are W2's validation images. W2 used default inference, so they chose nothing here.
+- W2's best checkpoint is from epoch 3 and was never beaten, because its pseudo Dice comes from those 3 clusters. Its test Dice (0.7433, against 0.8342 for the final checkpoint) is therefore not evidence about overfitting in the usual sense.
 
 ## Analyses on every trained run (agreed by Nana 4 Nov; run for every workstation run)
 Rules, fixed before any results:

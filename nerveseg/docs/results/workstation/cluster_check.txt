@@ -1,0 +1,289 @@
+Check run 2026-11-05 on the workstation, after W0, B, A on 501 and the default on 502 (W2). Added after seeing the results; the fixed rules and decisions in PLAN.md stand.
+Why: images in one near-duplicate cluster are nearly the same scan, so they are not independent. Validation on 501 has 39 images from 11 clusters, on 502 36 images from 3 clusters.
+Result: the validation decisions lean on one cluster each (38 on 501, 12 on 502), and W2's test mean against W0's does not measure leakage because the test sets differ. The same-image comparison at the end does.
+Bootstrap: 10000 draws, seed 0, percentile CI. "Clusters" resamples whole clusters and pools their images. Rerun when later runs finish; rows for those runs appear by themselves.
+
+=== Dataset501_NerveRequired validation: 39 images, 11 clusters, flips on, final checkpoint
+cluster    n      W0       B       A
+     38   16   0.777   0.651   0.502
+      4    4   0.843   0.851   0.836
+     25    4   0.225   0.758   0.724
+     29    3   0.814   0.810   0.801
+     39    3   0.835   0.831   0.798
+     24    2   0.768   0.795   0.771
+     43    2   0.882   0.895   0.862
+     11    2   0.833   0.858   0.828
+     19    1   0.239   0.000   0.695
+     28    1   0.674   0.651   0.714
+     37    1   0.721   0.666   0.636
+      all 39  0.724   0.723   0.668
+  cluster 38  0.777   0.651   0.502
+    the rest  0.688   0.773   0.783
+
+=== Dataset501_NerveRequired test: 60 images, 29 clusters, flips on, final checkpoint
+cluster    n      W0       B       A
+     17    8   0.861   0.864   0.857
+     20    6   0.899   0.902   0.904
+      2    6   0.858   0.851   0.851
+     12    5   0.878   0.878   0.882
+      3    3   0.858   0.849   0.824
+     38    3   0.768   0.693   0.450
+     39    3   0.674   0.677   0.662
+     43    2   0.884   0.881   0.876
+     26    2   0.930   0.942   0.925
+     30    2   0.833   0.863   0.837
+     40    2   0.927   0.928   0.924
+      0    1   0.702   0.722   0.664
+     41    1   0.906   0.728   0.913
+      5    1   0.859   0.886   0.766
+     16    1   0.273   0.251   0.445
+     22    1   0.640   0.583   0.686
+     45    1   0.912   0.911   0.928
+     48    1   0.940   0.953   0.941
+     52    1   0.939   0.938   0.937
+      4    1   0.799   0.839   0.793
+      7    1   0.856   0.889   0.852
+     11    1   0.804   0.837   0.780
+     15    1   0.946   0.950   0.950
+     23    1   0.868   0.937   0.771
+     14    1   0.827   0.863   0.861
+     25    1   0.015   0.662   0.659
+     31    1   0.740   0.793   0.788
+     33    1   0.825   0.663   0.778
+     35    1   0.625   0.678   0.508
+      all 60  0.822   0.830   0.813
+  cluster 17  0.861   0.864   0.857
+    the rest  0.816   0.824   0.806
+
+=== Dataset502_NerveGrouped validation: 36 images, 3 clusters, flips on, final checkpoint
+cluster    n      W2
+     12   22   0.220
+      9   13   0.832
+     50    1   0.768
+      all 36  0.457
+  cluster 12  0.220
+    the rest  0.828
+
+=== Dataset502_NerveGrouped test: 63 images, 11 clusters, flips on, final checkpoint
+cluster    n      W2
+     20   40   0.867
+     25    5   0.701
+     40    5   0.891
+     52    3   0.797
+     15    3   0.921
+     48    2   0.747
+      6    1   0.428
+     16    1   0.715
+     22    1   0.728
+     23    1   0.642
+     31    1   0.767
+      all 63  0.834
+  cluster 20  0.867
+    the rest  0.778
+
+=== paired differences: mean, 95% CI resampling images, 95% CI resampling whole clusters
+--- validation
+Dataset501 B - W0, flips on     -0.0018  images -0.071 to +0.076  clusters -0.096 to +0.205  without cluster 38: +0.0849
+Dataset501 A - W0, flips on     -0.0567  images -0.149 to +0.040  clusters -0.197 to +0.208  without cluster 38: +0.0950
+Dataset501 A - W0, flips off    +0.0272  images -0.061 to +0.124  clusters -0.098 to +0.302  without cluster 38: +0.1439
+Dataset501 A flips off - on     +0.0388  images +0.018 to +0.062  clusters -0.008 to +0.065  without cluster 38: +0.0077
+Dataset501 W0 flips off - on    -0.0452  images -0.075 to -0.020  clusters -0.077 to -0.010  without cluster 38: -0.0411
+Dataset501 B flips off - on     -0.0262  images -0.046 to -0.009  clusters -0.048 to +0.007  without cluster 38: +0.0001
+Dataset501 B clean-up - none    +0.0392  images +0.000 to +0.078  clusters +0.000 to +0.071  without cluster 38: +0.0005
+Dataset502 W2 flips off - on    -0.0193  images -0.051 to +0.002  clusters -0.030 to -0.001  without cluster 12: -0.0025
+Dataset502 W2 clean-up - none   -0.0200  images -0.050 to +0.005  clusters -0.033 to +0.000  without cluster 12: +0.0000
+--- test
+Dataset501 B - W0, flips on     +0.0074  images -0.014 to +0.035  clusters -0.014 to +0.038  without cluster 17: +0.0080
+Dataset501 A - W0, flips on     -0.0098  images -0.045 to +0.024  clusters -0.053 to +0.029  without cluster 17: -0.0108
+Dataset501 A - W0, flips off    +0.0044  images -0.024 to +0.038  clusters -0.024 to +0.042  without cluster 17: +0.0040
+Dataset501 A flips off - on     +0.0092  images +0.001 to +0.022  clusters -0.001 to +0.027  without cluster 17: +0.0107
+Dataset501 W0 flips off - on    -0.0050  images -0.011 to +0.001  clusters -0.012 to +0.001  without cluster 17: -0.0041
+Dataset501 B flips off - on     -0.0018  images -0.008 to +0.005  clusters -0.010 to +0.006  without cluster 17: -0.0015
+Dataset501 B clean-up - none    +0.0055  images +0.000 to +0.013  clusters +0.000 to +0.017  without cluster 17: +0.0063
+Dataset502 W2 flips off - on    -0.0030  images -0.009 to +0.003  clusters -0.016 to +0.018  without cluster 20: +0.0024
+Dataset502 W2 clean-up - none   +0.0029  images +0.000 to +0.007  clusters +0.000 to +0.017  without cluster 20: +0.0070
+
+=== why the two test means cannot be compared directly
+W0, 501 test: mean 0.8224, each cluster counted once 0.7877, clusters 29, largest ('17', 8), CI images 0.779 to 0.859, CI clusters 0.768 to 0.860, nerve sizes {'large': 22, 'medium': 21, 'small': 17}, median area 1922 px
+W2, 502 test: mean 0.8342, each cluster counted once 0.7457, clusters 11, largest ('20', 40), CI images 0.809 to 0.857, CI clusters 0.716 to 0.861, nerve sizes {'medium': 15, 'large': 47, 'small': 1}, median area 3277 px
+
+=== the same images: W0 (may have near-duplicates in training) against W2 (has none).
+Images are W0's test images that W2 did not train on: W2's test or validation images. W2 used default
+inference, so W2's validation images chose nothing here. Added after seeing W2's result, not a fixed rule.
+W0 has a near-duplicate (r > 0.95): n=16, 7 clusters, W0 0.8455, W2 0.6337, W0 - W2 mean +0.2119, median +0.0491, CI images +0.036 to +0.400, CI clusters -0.098 to +0.487, W0 better 15, W2 better 1
+W0 has none (r <= 0.95): n=5, 5 clusters, W0 0.6942, W2 0.7578, W0 - W2 mean -0.0635, median -0.0274, CI images -0.276 to +0.112, CI clusters -0.268 to +0.112, W0 better 2, W2 better 3
+all: n=21, 11 clusters, W0 0.8095, W2 0.6632, W0 - W2 mean +0.1463, median +0.0462, CI images -0.002 to +0.304, CI clusters -0.115 to +0.395, W0 better 17, W2 better 4
+  nerve_017 cluster  16  nearest r 0.364  W0 0.273  W2 0.715
+  nerve_021 cluster  22  nearest r 0.682  W0 0.640  W2 0.728
+  nerve_025 cluster  20  nearest r 0.999  W0 0.866  W2 0.817
+  nerve_027 cluster  20  nearest r 0.999  W0 0.869  W2 0.844
+  nerve_034 cluster  20  nearest r 0.998  W0 0.888  W2 0.838
+  nerve_035 cluster  20  nearest r 0.999  W0 0.924  W2 0.901
+  nerve_047 cluster  20  nearest r 0.928  W0 0.951  W2 0.937
+  nerve_055 cluster  20  nearest r 0.978  W0 0.896  W2 0.851
+  nerve_077 cluster  48  nearest r 0.993  W0 0.940  W2 0.789
+  nerve_085 cluster  52  nearest r 1.000  W0 0.939  W2 0.760
+  nerve_151 cluster  12  nearest r 0.985  W0 0.704  W2 0.000
+  nerve_152 cluster  12  nearest r 0.995  W0 0.946  W2 0.326
+  nerve_155 cluster  12  nearest r 0.988  W0 0.912  W2 0.755
+  nerve_162 cluster  12  nearest r 0.983  W0 0.945  W2 0.000
+  nerve_165 cluster  12  nearest r 0.962  W0 0.885  W2 0.000
+  nerve_171 cluster  15  nearest r 1.000  W0 0.946  W2 0.920
+  nerve_213 cluster  23  nearest r 0.639  W0 0.868  W2 0.642
+  nerve_231 cluster  25  nearest r 0.984  W0 0.015  W2 0.570
+  nerve_258 cluster  31  nearest r 0.731  W0 0.740  W2 0.767
+  nerve_298 cluster  40  nearest r 1.000  W0 0.945  W2 0.899
+  nerve_299 cluster  40  nearest r 1.000  W0 0.910  W2 0.871
+
+
+=== script
+"""Read-only check: how much do near-duplicate clusters drive the fold-0 validation and test results?
+
+Why: images in one near-duplicate cluster are nearly the same scan, so they are not independent, and a bootstrap
+that resamples images treats them as if they were. This prints per-cluster mean Dice and, for each paired
+difference, the 95% CI when resampling images and when resampling whole clusters. Reads the per-image CSVs that
+run.py wrote; trains nothing and decides nothing (the validation rule in PLAN.md stands).
+"""
+import csv
+from collections import Counter, defaultdict
+from pathlib import Path
+
+import numpy as np
+
+ROOT = Path(r"C:\Users\nirac\aic604-nerveseg\nerveseg")
+PRED = ROOT / "nnunet" / "predictions"
+DS = {501: "Dataset501_NerveRequired", 502: "Dataset502_NerveGrouped"}
+W0 = "nnUNetTrainer_250epochs"
+BB = "nnUNetTrainer_250epochs__nnUNetResEncUNetMPlans"
+AA = "nnUNetTrainerUSAug_250epochs"
+RUNS = {501: {"W0": W0, "B": BB, "A": AA}, 502: {"W2": W0, "A2": AA}}
+# (label, dataset, run a, suffix a, run b, suffix b): the difference is a minus b.
+DIFFS = [
+    ("B - W0, flips on", 501, BB, "", W0, ""),
+    ("A - W0, flips on", 501, AA, "", W0, ""),
+    ("A - W0, flips off", 501, AA, "__notta", W0, "__notta"),
+    ("A flips off - on", 501, AA, "__notta", AA, ""),
+    ("W0 flips off - on", 501, W0, "__notta", W0, ""),
+    ("B flips off - on", 501, BB, "__notta", BB, ""),
+    ("B clean-up - none", 501, BB, "__lcc", BB, ""),
+    ("A2 - W2, flips on", 502, AA, "", W0, ""),
+    ("A2 - W2, flips off", 502, AA, "__notta", W0, "__notta"),
+    ("W2 flips off - on", 502, W0, "__notta", W0, ""),
+    ("A2 flips off - on", 502, AA, "__notta", AA, ""),
+    ("W2 clean-up - none", 502, W0, "__lcc", W0, ""),
+]
+DRAWS = 10000
+
+
+def meta() -> dict[str, dict[str, str]]:
+    with open(ROOT / "data" / "meta.csv", encoding="utf-8") as f:
+        return {f"nerve_{int(r['id']):03d}": r for r in csv.DictReader(f)}
+
+
+def load(ds: int, run: str, val: bool, suffix: str) -> dict[str, float] | None:
+    p = PRED / f"{DS[ds]}__{run}__fold0{'__val' if val else ''}{suffix}_dice.csv"
+    if not p.exists():
+        return None
+    with open(p, encoding="utf-8") as f:
+        return {r["case"]: float(r["dice"]) for r in csv.DictReader(f)}
+
+
+def ci_images(d: np.ndarray, rng: np.random.Generator) -> tuple[float, float]:
+    idx = rng.integers(0, len(d), size=(DRAWS, len(d)))
+    return tuple(np.percentile(d[idx].mean(axis=1), [2.5, 97.5]))
+
+
+def ci_clusters(d: np.ndarray, cl: list[str], rng: np.random.Generator) -> tuple[float, float]:
+    groups = defaultdict(list)
+    for v, c in zip(d, cl):
+        groups[c].append(v)
+    arrs = [np.asarray(v) for v in groups.values()]
+    picks = rng.integers(0, len(arrs), size=(DRAWS, len(arrs)))
+    means = [np.concatenate([arrs[i] for i in row]).mean() for row in picks]
+    return tuple(np.percentile(means, [2.5, 97.5]))
+
+
+def main() -> None:
+    m = meta()
+    rng = np.random.default_rng(0)
+    for ds, runs in RUNS.items():
+        for val, name in ((True, "validation"), (False, "test")):
+            scores = {k: load(ds, v, val, "") for k, v in runs.items()}
+            scores = {k: v for k, v in scores.items() if v}
+            if not scores:
+                continue
+            cases = list(next(iter(scores.values())))
+            count = Counter(m[c]["cluster"] for c in cases)
+            big = count.most_common(1)[0][0]
+            print(f"=== {DS[ds]} {name}: {len(cases)} images, {len(count)} clusters, flips on, final checkpoint")
+            print("cluster    n  " + "  ".join(f"{k:>6s}" for k in scores))
+            for c, n in count.most_common():
+                row = [np.mean([s[x] for x in cases if m[x]["cluster"] == c]) for s in scores.values()]
+                print(f"{c:>7s} {n:4d}  " + "  ".join(f"{v:6.3f}" for v in row))
+            for label, keep in ((f"all {len(cases)}", lambda x: True),
+                                (f"cluster {big}", lambda x: m[x]["cluster"] == big),
+                                ("the rest", lambda x: m[x]["cluster"] != big)):
+                row = [np.mean([s[x] for x in cases if keep(x)]) for s in scores.values()]
+                print(f"{label:>12s} " + "  ".join(f"{v:6.3f}" for v in row))
+            print()
+    print("=== paired differences: mean, 95% CI resampling images, 95% CI resampling whole clusters")
+    for val, name in ((True, "validation"), (False, "test")):
+        print(f"--- {name}")
+        for label, ds, a, sa, b, sb in DIFFS:
+            x, y = load(ds, a, val, sa), load(ds, b, val, sb)
+            if not x or not y:
+                continue
+            cases = sorted(set(x) & set(y))
+            d = np.array([x[c] - y[c] for c in cases])
+            cl = [m[c]["cluster"] for c in cases]
+            big = Counter(cl).most_common(1)[0][0]
+            rest = d[[c != big for c in cl]].mean()
+            li, hi = ci_images(d, rng)
+            lc, hc = ci_clusters(d, cl, rng)
+            print(f"{DS[ds][:10]} {label:20s} {d.mean():+.4f}  images {li:+.3f} to {hi:+.3f}  "
+                  f"clusters {lc:+.3f} to {hc:+.3f}  without cluster {big}: {rest:+.4f}")
+    print()
+    print("=== why the two test means cannot be compared directly")
+    x, y = load(501, W0, False, ""), load(502, W0, False, "")
+    for name, s, col in (("W0, 501 test", x, W0), ("W2, 502 test", y, W0)):
+        ds = 501 if s is x else 502
+        with open(PRED / f"{DS[ds]}__{col}__fold0_dice.csv", encoding="utf-8") as f:
+            rows = list(csv.DictReader(f))
+        cases = list(s)
+        cl = [m[c]["cluster"] for c in cases]
+        d = np.array([s[c] for c in cases])
+        per = defaultdict(list)
+        for v, c in zip(d, cl):
+            per[c].append(v)
+        li, hi = ci_images(d, rng)
+        lc, hc = ci_clusters(d, cl, rng)
+        print(f"{name}: mean {d.mean():.4f}, each cluster counted once {np.mean([np.mean(v) for v in per.values()]):.4f}, "
+              f"clusters {len(per)}, largest {Counter(cl).most_common(1)[0]}, CI images {li:.3f} to {hi:.3f}, "
+              f"CI clusters {lc:.3f} to {hc:.3f}, nerve sizes {dict(Counter(r['size_group'] for r in rows))}, "
+              f"median area {np.median([float(r['gt_px']) for r in rows]):.0f} px")
+    print()
+    print("=== the same images: W0 (may have near-duplicates in training) against W2 (has none).")
+    print("Images are W0's test images that W2 did not train on: W2's test or validation images. W2 used default")
+    print("inference, so W2's validation images chose nothing here. Added after seeing W2's result, not a fixed rule.")
+    held = {**load(502, W0, True, ""), **y}
+    with open(PRED / f"{DS[501]}__{W0}__fold0_dice.csv", encoding="utf-8") as f:
+        near = {r["case"]: float(r["nearest_train_r"]) for r in csv.DictReader(f)}
+    shared = sorted(set(x) & set(held))
+    groups = (("W0 has a near-duplicate (r > 0.95)", [c for c in shared if near[c] > 0.95]),
+              ("W0 has none (r <= 0.95)", [c for c in shared if near[c] <= 0.95]),
+              ("all", shared))
+    for label, cases in groups:
+        d = np.array([x[c] - held[c] for c in cases])
+        cl = [m[c]["cluster"] for c in cases]
+        li, hi = ci_images(d, rng)
+        lc, hc = ci_clusters(d, cl, rng)
+        print(f"{label}: n={len(cases)}, {len(set(cl))} clusters, W0 {np.mean([x[c] for c in cases]):.4f}, "
+              f"W2 {np.mean([held[c] for c in cases]):.4f}, W0 - W2 mean {d.mean():+.4f}, median {np.median(d):+.4f}, "
+              f"CI images {li:+.3f} to {hi:+.3f}, CI clusters {lc:+.3f} to {hc:+.3f}, "
+              f"W0 better {(d > 0).sum()}, W2 better {(d < 0).sum()}")
+    for c in shared:
+        print(f"  {c} cluster {m[c]['cluster']:>3s}  nearest r {near[c]:.3f}  W0 {x[c]:.3f}  W2 {held[c]:.3f}")
+
+
+if __name__ == "__main__":
+    main()
