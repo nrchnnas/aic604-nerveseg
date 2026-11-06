@@ -1,0 +1,422 @@
+Read-only check of option C, run on 6 Nov 2026 after all five folds finished. It trains nothing and decides nothing.
+Clusters 12, 14 and 2, and the grouping of test images by cluster, were picked after seeing the results, to describe
+them. No image is dropped from any reported score. Output first, then the script.
+
+=== training: last 10 epochs, each fold
+fold  epochs  train loss  val loss    gap  lowest val loss (epoch)  EMA pseudo Dice highest (epoch), last
+   0     250      -0.973    -0.668  0.304    -0.756 ( 15)             0.7314 ( 88), 0.7035
+   1     250      -0.974    -0.573  0.401    -0.686 ( 71)             0.6138 (240), 0.6075
+   2     250      -0.973    -0.668  0.304    -0.742 (185)             0.7173 (228), 0.7038
+   3     250      -0.975    -0.773  0.202    -0.811 ( 79)             0.8093 (141), 0.8016
+   4     250      -0.973    -0.402  0.572    -0.504 ( 41)             0.4885 (  1), 0.4432
+
+=== cross-validation over the 240 training images
+mean 0.6379, median 0.7698, zero Dice 30 of 240
+95% CI resampling images 0.600 to 0.675; resampling whole clusters 0.491 to 0.750
+44 clusters; each counted once: mean 0.6460, median 0.7399
+mean of the five fold means 0.6419, SD 0.1425, range 0.4156 to 0.7585
+
+=== each fold, with nerve position relative to the x position in that model's training images
+fold    n  clusters   mean  median  zeros  each cluster once  found poor elsewhere empty   mean |x z|
+   0   39        11  0.724   0.816      2              0.692    35    2         2     0        0.78   (training x mean 390, SD 77)
+   1   51         9  0.588   0.777      9              0.727    35    7         9     0        1.13   (training x mean 383, SD 71)
+   2   50         8  0.723   0.769      1              0.671    46    3         0     1        1.22   (training x mean 411, SD 73)
+   3   50         8  0.758   0.837      1              0.579    45    4         1     0        0.71   (training x mean 382, SD 79)
+   4   50         8  0.416   0.518     17              0.535    26    7        11     6        0.49   (training x mean 397, SD 83)
+
+=== clusters within each fold (n >= 2), lowest first; x is the mean horizontal centre in pixels
+fold cluster    n   mean  zeros  true x  predicted x  x z
+   0      25    4  0.225      2     579          467 +2.47
+   0      24    2  0.768      0     398          401 +0.09
+   0      38   16  0.777      0     369          362 -0.28
+   0      29    3  0.814      0     277          269 -1.47
+   0      11    2  0.833      0     340          336 -0.65
+   0      39    3  0.835      0     486          484 +1.25
+   0       4    4  0.843      0     416          416 +0.34
+   0      43    2  0.882      0     508          500 +1.54
+   0 singles    3  0.545      0
+   1      12   17  0.129      9     533          372 +2.13
+   1      26   13  0.806      0     324          327 -0.83
+   1       9   13  0.830      0     398          398 +0.21
+   1      15    2  0.858      0     455          458 +1.02
+   1      47    2  0.879      0     520          524 +1.93
+   1 singles    4  0.760      0
+   2      32    2  0.396      1     295          290 -1.58
+   2      30    7  0.713      0     369          356 -0.57
+   2      17   34  0.739      0     301          304 -1.50
+   2      40    3  0.870      0     384          379 -0.37
+   2 singles    4  0.662      0
+   3      45    7  0.518      0     544          435 +2.05
+   3      27    2  0.545      0     463          410 +1.03
+   3      34    3  0.757      0     456          457 +0.94
+   3      20   34  0.852      0     409          412 +0.34
+   3 singles    4  0.489      1
+   4      14   12  0.000     12     406          355 +0.10
+   4       2   13  0.228      5     383          308 -0.17
+   4      52    2  0.618      0     466          474 +0.82
+   4       3   17  0.711      0     351          359 -0.56
+   4      49    3  0.885      0     321          321 -0.92
+   4 singles    3  0.611      0
+
+=== does Dice fall as the nerve sits further from the training position? (240 images)
+Spearman rho, |x z| vs Dice: -0.179 (p = 0.0055; images in a cluster are not independent, so p is too small)
+same, one point per cluster: rho -0.074 (p = 0.63, 44 clusters)
+  |x z| 0 to 1: n=158, mean Dice 0.684, zero Dice 16
+  |x z| 1 to 2: n= 57, mean Dice 0.628, zero Dice 7
+  |x z| 2 to more: n= 25, mean Dice 0.367, zero Dice 7
+zero-Dice images with a prediction: 23; predicted centre lies from the true centre back toward the training mean in 17 of them; mean gap 146 px
+
+=== test images: ensemble of five folds against the single fold-0 model (W0), flips on, final checkpoint
+ensemble 0.8539, single 0.8224, difference +0.0315, median +0.0041
+95% CI resampling images +0.007 to +0.063; resampling whole clusters +0.007 to +0.072 (29 clusters)
+better 42, worse 18
+  largest gain: nerve_231 cluster 25, single 0.015, ensemble 0.779
+  largest gain: nerve_017 cluster 16, single 0.273, ensemble 0.596
+  largest gain: nerve_291 cluster 39, single 0.562, ensemble 0.706
+  largest loss: nerve_003 cluster 41, single 0.906, ensemble 0.735
+  without the largest gain: +0.0191; without the largest three: +0.0116
+with a near-duplicate among the 240 training images (r > 0.95): n=43, difference +0.0307, CI images +0.005 to +0.071, CI clusters +0.005 to +0.085, 19 clusters
+without one: n=17, difference +0.0335, CI images -0.010 to +0.083, CI clusters -0.010 to +0.084, 16 clusters
+regions: images with more than one predicted region, single 6, ensemble 1
+
+=== why cross-validation is lower than test
+43 of 60 test images are near-duplicates of one of the 240 training images; no held-out image in cross-validation has one.
+CV (no cluster shared): 0.6379. W0 test, near-duplicate: 0.8439; W0 test, none: 0.7680
+the 17 W0 test images without a near-duplicate: 7 still share a cluster with fold 0's training images (linked through other images), so they are not fully held out either
+
+=== how concentrated are the failures? (picked after seeing the results, to describe them, not to drop images)
+zero-Dice images by cluster: [('14', 12), ('12', 9), ('2', 5), ('25', 2), ('44', 1), ('32', 1)]
+clusters ['12', '14', '2'] hold 42 of 240 images and 26 of 30 zero-Dice images; the other 198 images: mean 0.7471, median 0.8013
+  fold 1 without them: n=34, mean 0.8170
+  fold 4 without them: n=25, mean 0.7125
+
+=== image field width: columns of the image that hold ultrasound, not black margin
+all 240: median 722, 5th to 95th percentile 563 to 736, min 443, max 736
+  cluster 14: median 443, range 443 to 443
+  cluster 2: median 707, range 696 to 720
+  cluster 12: median 569, range 569 to 569
+images at most as wide as cluster 14 (<= 448 columns): 12 of 240, from clusters [('14', 12)]; mean Dice 0.000
+
+=== does the ensemble gain come from averaging, or from models that saw more of the test images' clusters?
+W0 trained on 201 images; the other four models together also trained on fold 0's 39 validation images.
+So a test image whose cluster is only in fold 0's validation images has cluster-mates in 4 of the 5 ensemble
+models but not in W0. Grouped by where the test image's cluster sits; picked after seeing the results.
+cluster in W0's training (4 of 5 models saw it, W0 among them): n=40, 14 clusters, single 0.8799, ensemble 0.8829, difference +0.0030, median +0.0021, CI clusters -0.002 to +0.007, better 25, worse 15
+cluster only in fold 0's validation (4 of 5 models saw it, W0 did not): n=11, 6 clusters, single 0.7011, ensemble 0.8293, difference +0.1282, median +0.0709, CI clusters +0.047 to +0.333, better 10, worse 1
+cluster in no training image (no model saw it): n=9, 9 clusters, single 0.7151, ensemble 0.7550, difference +0.0398, median +0.0194, CI clusters -0.040 to +0.128, better 7, worse 2
+
+=== what the near-duplicate flag measures: W0 trained on 201 of the 240 images
+nearest_train_r compares a test image with all 240 training images, so 'near-duplicate' can mean fold 0's
+validation images, which W0 did not train on. No score changes; this only affects how the split is described.
+r > 0.95, cluster in W0's training: n=33, W0 0.8830
+r > 0.95, twin only in fold 0's validation: n=10, W0 0.7149
+test images whose cluster W0 never trained on: n=20, 15 clusters, W0 0.7074, median 0.7821, CI clusters 0.592 to 0.792
+test images whose cluster W0 did train on: n=40, 14 clusters, W0 0.8799, median 0.8982, CI clusters 0.866 to 0.899
+
+same-image comparison (cluster_check.txt), again split by whether W0 or A trained on the cluster. W0 and A use
+the same 201 fold-0 training images; the 21 images are the 501 test images the 502 models did not train on.
+  W0 - W2, cluster in fold 0's training: n=16, 6 clusters, W0 0.9040, W2 0.6567, difference +0.2474, median +0.0491, CI clusters +0.041 to +0.537, W0 better 16, W2 better 0
+  W0 - W2, cluster not in fold 0's training: n=5, 5 clusters, W0 0.5071, W2 0.6842, difference -0.1772, median -0.0879, CI clusters -0.427 to +0.062, W0 better 1, W2 better 4
+    nerve_231 (cluster 25, r > 0.95, twin only in fold 0's validation): W0 0.015, W2 0.570
+  A - A2, cluster in fold 0's training: n=16, 6 clusters, A 0.9070, A2 0.5778, difference +0.3292, median +0.1002, CI clusters +0.086 to +0.642, A better 16, A2 better 0
+  A - A2, cluster not in fold 0's training: n=5, 5 clusters, A 0.6698, A2 0.6535, difference +0.0163, median +0.0359, CI clusters -0.065 to +0.088, A better 3, A2 better 2
+    nerve_231 (cluster 25, r > 0.95, twin only in fold 0's validation): A 0.659, A2 0.556
+
+=== script
+"""Read-only check of option C: why do the five folds score so differently, and how firm is the ensemble's gain?
+
+Why: every fold holds out whole near-duplicate clusters, so fold-to-fold differences may come from which scans are
+held out. A resampling of images treats the 240 images as independent, and they are not, so this also resamples whole
+clusters. Nerve position is measured because W2's zero-Dice images had the nerve far from where training put it.
+Reads the masks and CSVs that run.py wrote; trains nothing and decides nothing.
+"""
+import csv
+import json
+import re
+from collections import Counter, defaultdict
+from pathlib import Path
+
+import numpy as np
+from PIL import Image
+from scipy.stats import spearmanr
+
+ROOT = Path(r"C:\Users\nirac\aic604-nerveseg\nerveseg")
+PRED = ROOT / "nnunet" / "predictions"
+DS = "Dataset501_NerveRequired"
+TR = "nnUNetTrainer_250epochs"
+CV = PRED / f"{DS}__{TR}__cv_folds01234"
+SPLITS = ROOT / "nnunet" / "nnUNet_preprocessed" / DS / "splits_final.json"
+RESULTS = ROOT / "nnunet" / "nnUNet_results" / DS / f"{TR}__nnUNetPlans__2d"
+DRAWS = 10000
+
+
+def read(path: Path) -> list[dict[str, str]]:
+    with open(path, encoding="utf-8") as f:
+        return list(csv.DictReader(f))
+
+
+def center(path: Path) -> tuple[float, float] | None:
+    ys, xs = np.nonzero(np.asarray(Image.open(path)) > 0)
+    return None if len(xs) == 0 else (float(xs.mean()), float(ys.mean()))
+
+
+def ci_images(d: np.ndarray, rng: np.random.Generator) -> tuple[float, float]:
+    idx = rng.integers(0, len(d), size=(DRAWS, len(d)))
+    return tuple(np.percentile(d[idx].mean(axis=1), [2.5, 97.5]))
+
+
+def ci_clusters(d: np.ndarray, cl: list[str], rng: np.random.Generator) -> tuple[float, float]:
+    groups = defaultdict(list)
+    for v, c in zip(d, cl):
+        groups[c].append(v)
+    arrs = [np.asarray(v) for v in groups.values()]
+    picks = rng.integers(0, len(arrs), size=(DRAWS, len(arrs)))
+    means = [np.concatenate([arrs[i] for i in row]).mean() for row in picks]
+    return tuple(np.percentile(means, [2.5, 97.5]))
+
+
+def training_table() -> None:
+    print("=== training: last 10 epochs, each fold")
+    print("fold  epochs  train loss  val loss    gap  lowest val loss (epoch)  EMA pseudo Dice highest (epoch), last")
+    for f in range(5):
+        tr, va, ema = [], [], []
+        for log in sorted((RESULTS / f"fold_{f}").glob("training_log_*.txt")):
+            for line in open(log, encoding="utf-8"):
+                if m := re.search(r"train_loss (-?[\d.]+)", line):
+                    tr.append(float(m.group(1)))
+                if m := re.search(r"val_loss (-?[\d.]+)", line):
+                    va.append(float(m.group(1)))
+        t, v = np.mean(tr[-10:]), np.mean(va[-10:])
+        import torch
+        c = torch.load(RESULTS / f"fold_{f}" / "checkpoint_final.pth", map_location="cpu", weights_only=False)
+        ema = c["logging"]["ema_fg_dice"]
+        print(f"{f:4d}  {len(tr):6d}  {t:10.3f}  {v:8.3f}  {v - t:5.3f}  {min(va):8.3f} ({int(np.argmin(va)) + 1:3d})"
+              f"             {max(ema):.4f} ({int(np.argmax(ema)) + 1:3d}), {ema[-1]:.4f}")
+    print()
+
+
+def main() -> None:
+    rng = np.random.default_rng(0)
+    meta = {f"nerve_{int(r['id']):03d}": r for r in read(ROOT / "data" / "meta.csv")}
+    splits = json.load(open(SPLITS))
+    fold_of = {c: f for f, s in enumerate(splits) for c in s["val"]}
+    rows = {r["case"]: r for r in read(Path(f"{CV}_dice.csv"))}
+    cases = sorted(rows)
+    dice = {c: float(rows[c]["dice"]) for c in cases}
+    cluster = {c: meta[c]["cluster"] for c in cases}
+    gt = {c: center(CV / "labels" / f"{c}.png") for c in cases}
+    pr = {c: center(CV / f"{c}.png") for c in cases}
+
+    training_table()
+
+    print("=== cross-validation over the 240 training images")
+    d = np.array([dice[c] for c in cases])
+    cl = [cluster[c] for c in cases]
+    per = defaultdict(list)
+    for c in cases:
+        per[cluster[c]].append(dice[c])
+    means = [np.mean(v) for v in per.values()]
+    print(f"mean {d.mean():.4f}, median {np.median(d):.4f}, zero Dice {(d == 0).sum()} of {len(d)}")
+    print("95% CI resampling images {:.3f} to {:.3f}; resampling whole clusters {:.3f} to {:.3f}".format(
+        *ci_images(d, rng), *ci_clusters(d, cl, rng)))
+    print(f"{len(per)} clusters; each counted once: mean {np.mean(means):.4f}, median {np.median(means):.4f}")
+    fm = [np.mean([dice[c] for c in cases if fold_of[c] == f]) for f in range(5)]
+    print(f"mean of the five fold means {np.mean(fm):.4f}, SD {np.std(fm, ddof=1):.4f}, range {min(fm):.4f} to {max(fm):.4f}")
+    print()
+
+    print("=== each fold, with nerve position relative to the x position in that model's training images")
+    print("fold    n  clusters   mean  median  zeros  each cluster once  found poor elsewhere empty   mean |x z|")
+    zs = {}
+    for f in range(5):
+        val = [c for c in cases if fold_of[c] == f]
+        train_x = np.array([gt[c][0] for c in cases if fold_of[c] != f])
+        mu, sd = train_x.mean(), train_x.std(ddof=1)
+        for c in val:
+            zs[c] = (gt[c][0] - mu) / sd
+        v = np.array([dice[c] for c in val])
+        pc = defaultdict(list)
+        for c in val:
+            pc[cluster[c]].append(dice[c])
+        fail = Counter(rows[c]["failure"] for c in val)
+        print(f"{f:4d} {len(val):4d} {len(pc):9d} {v.mean():6.3f} {np.median(v):7.3f} {(v == 0).sum():6d} "
+              f"{np.mean([np.mean(x) for x in pc.values()]):18.3f} {fail.get('found', 0):5d} {fail.get('poor', 0):4d} "
+              f"{fail.get('missed_elsewhere', 0):9d} {fail.get('missed_empty', 0):5d} "
+              f"{np.mean([abs(zs[c]) for c in val]):11.2f}   (training x mean {mu:.0f}, SD {sd:.0f})")
+    print()
+
+    print("=== clusters within each fold (n >= 2), lowest first; x is the mean horizontal centre in pixels")
+    print("fold cluster    n   mean  zeros  true x  predicted x  x z")
+    for f in range(5):
+        val = [c for c in cases if fold_of[c] == f]
+        by = defaultdict(list)
+        for c in val:
+            by[cluster[c]].append(c)
+        for k, group in sorted(by.items(), key=lambda kv: np.mean([dice[c] for c in kv[1]])):
+            if len(group) < 2:
+                continue
+            px = [pr[c][0] for c in group if pr[c]]
+            print(f"{f:4d} {k:>7s} {len(group):4d} {np.mean([dice[c] for c in group]):6.3f} "
+                  f"{sum(dice[c] == 0 for c in group):6d} {np.mean([gt[c][0] for c in group]):7.0f} "
+                  f"{np.mean(px) if px else float('nan'):12.0f} {np.mean([zs[c] for c in group]):+5.2f}")
+        rest = [c for g in by.values() if len(g) < 2 for c in g]
+        if rest:
+            print(f"{f:4d} singles {len(rest):4d} {np.mean([dice[c] for c in rest]):6.3f} "
+                  f"{sum(dice[c] == 0 for c in rest):6d}")
+    print()
+
+    print("=== does Dice fall as the nerve sits further from the training position? (240 images)")
+    az = np.array([abs(zs[c]) for c in cases])
+    rho, p = spearmanr(az, d)
+    print(f"Spearman rho, |x z| vs Dice: {rho:.3f} (p = {p:.2g}; images in a cluster are not independent, so p is too small)")
+    pc = {k: (np.mean([abs(zs[c]) for c in cases if cluster[c] == k]), np.mean(v)) for k, v in per.items()}
+    rho, p = spearmanr([v[0] for v in pc.values()], [v[1] for v in pc.values()])
+    print(f"same, one point per cluster: rho {rho:.3f} (p = {p:.2g}, {len(pc)} clusters)")
+    for lo, hi in ((0, 1), (1, 2), (2, 99)):
+        keep = (az >= lo) & (az < hi)
+        print(f"  |x z| {lo} to {hi if hi < 99 else 'more'}: n={keep.sum():3d}, mean Dice {d[keep].mean():.3f}, "
+              f"zero Dice {(d[keep] == 0).sum()}")
+    far = [c for c in cases if dice[c] == 0 and pr[c]]
+    opposite = sum(np.sign(pr[c][0] - gt[c][0]) * np.sign(zs[c]) < 0 for c in far)
+    print(f"zero-Dice images with a prediction: {len(far)}; predicted centre lies from the true centre back toward the "
+          f"training mean in {opposite} of them; mean gap {np.mean([abs(pr[c][0] - gt[c][0]) for c in far]):.0f} px")
+    print()
+
+    print("=== test images: ensemble of five folds against the single fold-0 model (W0), flips on, final checkpoint")
+    ens = {r["case"]: r for r in read(PRED / f"{DS}__{TR}__folds01234_dice.csv")}
+    one = {r["case"]: r for r in read(PRED / f"{DS}__{TR}__fold0_dice.csv")}
+    tc = sorted(ens)
+    near = {c: float(one[c]["nearest_train_r"]) for c in tc}
+    tcl = [meta[c]["cluster"] for c in tc]
+    diff = np.array([float(ens[c]["dice"]) - float(one[c]["dice"]) for c in tc])
+    print(f"ensemble {np.mean([float(ens[c]['dice']) for c in tc]):.4f}, single {np.mean([float(one[c]['dice']) for c in tc]):.4f}, "
+          f"difference {diff.mean():+.4f}, median {np.median(diff):+.4f}")
+    print("95% CI resampling images {:+.3f} to {:+.3f}; resampling whole clusters {:+.3f} to {:+.3f} ({} clusters)".format(
+        *ci_images(diff, rng), *ci_clusters(diff, tcl, rng), len(set(tcl))))
+    print(f"better {(diff > 0).sum()}, worse {(diff < 0).sum()}")
+    order = np.argsort(-diff)
+    for i in order[:3]:
+        print(f"  largest gain: {tc[i]} cluster {tcl[i]}, single {float(one[tc[i]]['dice']):.3f}, ensemble {float(ens[tc[i]]['dice']):.3f}")
+    print(f"  largest loss: {tc[order[-1]]} cluster {tcl[order[-1]]}, single {float(one[tc[order[-1]]]['dice']):.3f}, ensemble {float(ens[tc[order[-1]]]['dice']):.3f}")
+    print(f"  without the largest gain: {np.delete(diff, order[0]).mean():+.4f}; without the largest three: {np.delete(diff, order[:3]).mean():+.4f}")
+    for label, keep in (("with a near-duplicate among the 240 training images (r > 0.95)", [near[c] > 0.95 for c in tc]),
+                        ("without one", [near[c] <= 0.95 for c in tc])):
+        k = np.array(keep)
+        dk = diff[k]
+        kc = [x for x, y in zip(tcl, keep) if y]
+        print(f"{label}: n={k.sum()}, difference {dk.mean():+.4f}, CI images {ci_images(dk, rng)[0]:+.3f} to {ci_images(dk, rng)[1]:+.3f}, "
+              f"CI clusters {ci_clusters(dk, kc, rng)[0]:+.3f} to {ci_clusters(dk, kc, rng)[1]:+.3f}, {len(set(kc))} clusters")
+    print(f"regions: images with more than one predicted region, single {sum(int(one[c]['n_pred_regions']) > 1 for c in tc)}, "
+          f"ensemble {sum(int(ens[c]['n_pred_regions']) > 1 for c in tc)}")
+    print()
+
+    print("=== why cross-validation is lower than test")
+    print("43 of 60 test images are near-duplicates of one of the 240 training images; no held-out image in cross-validation has one.")
+    vals = [dice[c] for c in cases]
+    print(f"CV (no cluster shared): {np.mean(vals):.4f}. W0 test, near-duplicate: "
+          f"{np.mean([float(one[c]['dice']) for c in tc if near[c] > 0.95]):.4f}; W0 test, none: "
+          f"{np.mean([float(one[c]['dice']) for c in tc if near[c] <= 0.95]):.4f}")
+    same = [c for c in tc if near[c] <= 0.95]
+    tr_cl = Counter(meta[c]["cluster"] for c in splits[0]["train"])
+    print(f"the {len(same)} W0 test images without a near-duplicate: {sum(tr_cl.get(meta[c]['cluster'], 0) > 0 for c in same)} "
+          f"still share a cluster with fold 0's training images (linked through other images), so they are not fully "
+          f"held out either")
+    print()
+
+    print("=== how concentrated are the failures? (picked after seeing the results, to describe them, not to drop images)")
+    zero = Counter(cluster[c] for c in cases if dice[c] == 0)
+    print(f"zero-Dice images by cluster: {zero.most_common()}")
+    worst = ["12", "14", "2"]
+    keep = [c for c in cases if cluster[c] not in worst]
+    print(f"clusters {worst} hold {sum(cluster[c] in worst for c in cases)} of 240 images and "
+          f"{sum(zero[k] for k in worst)} of {sum(zero.values())} zero-Dice images; the other {len(keep)} images: "
+          f"mean {np.mean([dice[c] for c in keep]):.4f}, median {np.median([dice[c] for c in keep]):.4f}")
+    for f in (1, 4):
+        v = [dice[c] for c in cases if fold_of[c] == f and cluster[c] not in worst]
+        print(f"  fold {f} without them: n={len(v)}, mean {np.mean(v):.4f}")
+    print()
+
+    print("=== image field width: columns of the image that hold ultrasound, not black margin")
+    raw = ROOT / "nnunet" / "nnUNet_raw" / DS / "imagesTr"
+    width = {c: int((np.asarray(Image.open(raw / f"{c}_0000.png").convert("L")).mean(axis=0) > 5).sum()) for c in cases}
+    w = np.array([width[c] for c in cases])
+    print(f"all 240: median {np.median(w):.0f}, 5th to 95th percentile {np.percentile(w, 5):.0f} to {np.percentile(w, 95):.0f}, min {w.min()}, max {w.max()}")
+    for k in ("14", "2", "12"):
+        v = [width[c] for c in cases if cluster[c] == k]
+        print(f"  cluster {k}: median {np.median(v):.0f}, range {min(v)} to {max(v)}")
+    cut = max(width[c] for c in cases if cluster[c] == "14") + 5
+    narrow = [c for c in cases if width[c] <= cut]
+    print(f"images at most as wide as cluster 14 (<= {cut} columns): {len(narrow)} of 240, from clusters "
+          f"{Counter(cluster[c] for c in narrow).most_common()}; mean Dice {np.mean([dice[c] for c in narrow]):.3f}")
+    other = [c for c in narrow if cluster[c] != "14"]
+    if other:
+        print(f"  those outside cluster 14: n={len(other)}, mean Dice {np.mean([dice[c] for c in other]):.3f}")
+
+    print()
+
+    print("=== does the ensemble gain come from averaging, or from models that saw more of the test images' clusters?")
+    print("W0 trained on 201 images; the other four models together also trained on fold 0's 39 validation images.")
+    print("So a test image whose cluster is only in fold 0's validation images has cluster-mates in 4 of the 5 ensemble")
+    print("models but not in W0. Grouped by where the test image's cluster sits; picked after seeing the results.")
+    in_w0 = {meta[c]["cluster"] for c in splits[0]["train"]}
+    in_val = {meta[c]["cluster"] for c in splits[0]["val"]}
+    groups = {"cluster in W0's training (4 of 5 models saw it, W0 among them)": [c for c in tc if meta[c]["cluster"] in in_w0],
+              "cluster only in fold 0's validation (4 of 5 models saw it, W0 did not)": [c for c in tc if meta[c]["cluster"] in in_val and meta[c]["cluster"] not in in_w0],
+              "cluster in no training image (no model saw it)": [c for c in tc if meta[c]["cluster"] not in in_w0 and meta[c]["cluster"] not in in_val]}
+    for label, group in groups.items():
+        if not group:
+            print(f"{label}: none")
+            continue
+        dg = np.array([float(ens[c]["dice"]) - float(one[c]["dice"]) for c in group])
+        gc = [meta[c]["cluster"] for c in group]
+        lc, hc = ci_clusters(dg, gc, rng)
+        print(f"{label}: n={len(group)}, {len(set(gc))} clusters, single {np.mean([float(one[c]['dice']) for c in group]):.4f}, "
+              f"ensemble {np.mean([float(ens[c]['dice']) for c in group]):.4f}, difference {dg.mean():+.4f}, median {np.median(dg):+.4f}, "
+              f"CI clusters {lc:+.3f} to {hc:+.3f}, better {(dg > 0).sum()}, worse {(dg < 0).sum()}")
+        if len(group) <= 8:
+            for c in group:
+                print(f"    {c} cluster {meta[c]['cluster']}: single {float(one[c]['dice']):.3f}, ensemble {float(ens[c]['dice']):.3f}")
+
+    print()
+
+    print("=== what the near-duplicate flag measures: W0 trained on 201 of the 240 images")
+    print("nearest_train_r compares a test image with all 240 training images, so 'near-duplicate' can mean fold 0's")
+    print("validation images, which W0 did not train on. No score changes; this only affects how the split is described.")
+    seen = [c for c in tc if near[c] > 0.95 and meta[c]["cluster"] in in_w0]
+    twin_val = [c for c in tc if near[c] > 0.95 and meta[c]["cluster"] not in in_w0]
+    unseen = [c for c in tc if meta[c]["cluster"] not in in_w0]
+    s1 = {c: float(one[c]["dice"]) for c in tc}
+    print(f"r > 0.95, cluster in W0's training: n={len(seen)}, W0 {np.mean([s1[c] for c in seen]):.4f}")
+    print(f"r > 0.95, twin only in fold 0's validation: n={len(twin_val)}, W0 {np.mean([s1[c] for c in twin_val]):.4f}")
+    v = np.array([s1[c] for c in unseen])
+    uc = [meta[c]["cluster"] for c in unseen]
+    lc, hc = ci_clusters(v, uc, rng)
+    print(f"test images whose cluster W0 never trained on: n={len(unseen)}, {len(set(uc))} clusters, W0 {v.mean():.4f}, "
+          f"median {np.median(v):.4f}, CI clusters {lc:.3f} to {hc:.3f}")
+    v = np.array([s1[c] for c in tc if meta[c]["cluster"] in in_w0])
+    uc = [meta[c]["cluster"] for c in tc if meta[c]["cluster"] in in_w0]
+    lc, hc = ci_clusters(v, uc, rng)
+    print(f"test images whose cluster W0 did train on: n={len(v)}, {len(set(uc))} clusters, W0 {v.mean():.4f}, "
+          f"median {np.median(v):.4f}, CI clusters {lc:.3f} to {hc:.3f}")
+    print()
+    print("same-image comparison (cluster_check.txt), again split by whether W0 or A trained on the cluster. W0 and A use")
+    print("the same 201 fold-0 training images; the 21 images are the 501 test images the 502 models did not train on.")
+    P2 = "Dataset502_NerveGrouped"
+    for run, n1, n2 in ((TR, "W0", "W2"), ("nnUNetTrainerUSAug_250epochs", "A", "A2")):
+        def col(ds: str, suffix: str) -> dict[str, float]:
+            return {r["case"]: float(r["dice"]) for r in read(PRED / f"{ds}__{run}__fold0{suffix}_dice.csv")}
+        x1, t2, v2 = col(DS, ""), col(P2, ""), col(P2, "__val")
+        held = {**v2, **t2}
+        shared = sorted(set(x1) & set(held))
+        for label, group in (("cluster in fold 0's training", [c for c in shared if meta[c]["cluster"] in in_w0]),
+                             ("cluster not in fold 0's training", [c for c in shared if meta[c]["cluster"] not in in_w0])):
+            dg = np.array([x1[c] - held[c] for c in group])
+            gc = [meta[c]["cluster"] for c in group]
+            lc, hc = ci_clusters(dg, gc, rng)
+            print(f"  {n1} - {n2}, {label}: n={len(group)}, {len(set(gc))} clusters, {n1} {np.mean([x1[c] for c in group]):.4f}, "
+                  f"{n2} {np.mean([held[c] for c in group]):.4f}, difference {dg.mean():+.4f}, median {np.median(dg):+.4f}, "
+                  f"CI clusters {lc:+.3f} to {hc:+.3f}, {n1} better {(dg > 0).sum()}, {n2} better {(dg < 0).sum()}")
+        print(f"    nerve_231 (cluster 25, r > 0.95, twin only in fold 0's validation): {n1} {x1['nerve_231']:.3f}, {n2} {held['nerve_231']:.3f}")
+
+
+if __name__ == "__main__":
+    main()

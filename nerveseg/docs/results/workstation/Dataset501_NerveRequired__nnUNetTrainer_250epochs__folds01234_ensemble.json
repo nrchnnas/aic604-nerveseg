@@ -1,0 +1,125 @@
+{
+  "dataset": "Dataset501_NerveRequired",
+  "trainer": "nnUNetTrainer_250epochs",
+  "plans": "nnUNetPlans",
+  "folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "flip_averaging": true,
+  "rule": "not chosen by the validation rule (no untouched validation images for an ensemble); reported on test next to the single fold-0 model, which stays the headline",
+  "test": {
+    "single": "Dataset501_NerveRequired__nnUNetTrainer_250epochs__fold0",
+    "single_summary": {
+      "n": 60,
+      "mean_dice": 0.8223843459302228,
+      "ci95": [
+        0.7779350837464452,
+        0.8599105503766935
+      ],
+      "median_dice": 0.8682310972380927,
+      "min_dice": 0.015267175572519083,
+      "mean_iou": 0.7223007583430475
+    },
+    "ensemble": "Dataset501_NerveRequired__nnUNetTrainer_250epochs__folds01234",
+    "ensemble_summary": {
+      "n": 60,
+      "mean_dice": 0.8538689032027145,
+      "ci95": [
+        0.8290610603536259,
+        0.877396478293701
+      ],
+      "median_dice": 0.8894475871220058,
+      "min_dice": 0.5594462540716613,
+      "mean_iou": 0.756007607441001
+    },
+    "paired_ensemble_minus_single": {
+      "n": 60,
+      "mean_diff": 0.03148455727249157,
+      "ci95": [
+        0.007537185012353686,
+        0.06428960470575297
+      ],
+      "better": 42,
+      "worse": 18,
+      "equal": 0,
+      "n_only_in_one": 0
+    }
+  },
+  "cross_validation": {
+    "n_images": 240,
+    "n_training_images": 240,
+    "summary": {
+      "n": 240,
+      "mean_dice": 0.6378701709310964,
+      "ci95": [
+        0.6000913380962157,
+        0.6751885719012657
+      ],
+      "median_dice": 0.7698104238770662,
+      "min_dice": 0.0,
+      "mean_iou": 0.5267609792007899
+    },
+    "per_fold": {
+      "0": {
+        "n": 39,
+        "mean_dice": 0.7244331110663672,
+        "ci95": [
+          0.6476278496661534,
+          0.7866266991269157
+        ],
+        "median_dice": 0.8159722222222222,
+        "min_dice": 0.0,
+        "mean_iou": 0.6038906676513729
+      },
+      "1": {
+        "n": 51,
+        "mean_dice": 0.5876075703180161,
+        "ci95": [
+          0.488161444137966,
+          0.6814802440424689
+        ],
+        "median_dice": 0.777139208173691,
+        "min_dice": 0.0,
+        "mean_iou": 0.49251459839409556
+      },
+      "2": {
+        "n": 50,
+        "mean_dice": 0.7232435688148209,
+        "ci95": [
+          0.6750330174766771,
+          0.7645229713288706
+        ],
+        "median_dice": 0.7690397432862077,
+        "min_dice": 0.0,
+        "mean_iou": 0.5868816722570348
+      },
+      "3": {
+        "n": 50,
+        "mean_dice": 0.758493427132521,
+        "ci95": [
+          0.701712496564566,
+          0.8082449631817148
+        ],
+        "median_dice": 0.8366518148813058,
+        "min_dice": 0.0,
+        "mean_iou": 0.6427683461242668
+      },
+      "4": {
+        "n": 50,
+        "mean_dice": 0.415622276165778,
+        "ci95": [
+          0.3218188749684686,
+          0.511295312728495
+        ],
+        "median_dice": 0.5184941019803405,
+        "min_dice": 0.0,
+        "mean_iou": 0.3254030706524416
+      }
+    },
+    "what": "nnU-Net's own validation result of each fold (final checkpoint, flip averaging on), single models"
+  }
+}

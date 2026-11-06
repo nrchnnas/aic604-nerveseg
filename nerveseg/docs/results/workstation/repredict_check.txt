@@ -1,0 +1,85 @@
+Read-only check, run on 6 Nov 2026 after the queue ended: the saved models predicted again and compared with the saved
+masks. Fold 3 crashed on 6 Nov with an illegal instruction (see PLAN.md, WC row), so this tests whether checkpoints and
+saved masks agree on this machine. Small differences are expected between runs, so a few pixels is a pass.
+Output first, then the script.
+
+=== fold 0, test: 60 images, saved masks in C:\Users\nirac\aic604-nerveseg\nerveseg\nnunet\predictions\Dataset501_NerveRequired__nnUNetTrainer_250epochs__fold0
+identical masks: 52 of 60; pixels differing: total 9, largest in one image 2; lowest saved-vs-new overlap 0.99828
+mean Dice saved 0.822384, predicted today 0.822324, difference -0.000060; largest change in one image 0.00089
+=== fold 3, own validation: 50 images, saved masks in C:\Users\nirac\aic604-nerveseg\nerveseg\nnunet\nnUNet_results\Dataset501_NerveRequired\nnUNetTrainer_250epochs__nnUNetPlans__2d\fold_3\validation
+identical masks: 40 of 50; pixels differing: total 13, largest in one image 3; lowest saved-vs-new overlap 0.99937
+mean Dice saved 0.758493, predicted today 0.758481, difference -0.000013; largest change in one image 0.00052
+=== fold 4, own validation: 50 images, saved masks in C:\Users\nirac\aic604-nerveseg\nerveseg\nnunet\nnUNet_results\Dataset501_NerveRequired\nnUNetTrainer_250epochs__nnUNetPlans__2d\fold_4\validation
+identical masks: 44 of 50; pixels differing: total 9, largest in one image 2; lowest saved-vs-new overlap 0.99888
+mean Dice saved 0.415622, predicted today 0.415616, difference -0.000006; largest change in one image 0.00053
+done
+
+=== script
+"""Read-only check: does this machine, today, give the same masks as the ones saved earlier?
+
+Why: fold 3 crashed on 6 Nov with an illegal instruction, and the CPU may be unstable. If a saved model predicted
+again gives the same masks, the checkpoint and the saved predictions agree. This writes nothing into the project.
+It covers W0 on the 60 test images, then fold 3 (the one that crashed) and fold 4 (lowest score, trained straight
+after the crash) on their own validation images. Same settings as nnU-Net's own: final checkpoint, flip averaging on.
+"""
+import json
+import os
+from pathlib import Path
+
+import numpy as np
+import torch
+
+N = Path(r"C:\Users\nirac\aic604-nerveseg\nerveseg\nnunet")
+os.environ.update(nnUNet_raw=str(N / "nnUNet_raw"), nnUNet_preprocessed=str(N / "nnUNet_preprocessed"),
+                  nnUNet_results=str(N / "nnUNet_results"), nnUNet_extTrainer=str(N / "trainers"))
+
+from nnunetv2.imageio.natural_image_reader_writer import NaturalImage2DIO  # noqa: E402
+from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor  # noqa: E402
+
+DS = "Dataset501_NerveRequired"
+RAW = N / "nnUNet_raw" / DS
+MODEL = N / "nnUNet_results" / DS / "nnUNetTrainer_250epochs__nnUNetPlans__2d"
+PRED = N / "predictions" / f"{DS}__nnUNetTrainer_250epochs__fold0"
+
+
+def dice(a: np.ndarray, b: np.ndarray) -> float:
+    s = a.sum() + b.sum()
+    return 1.0 if s == 0 else float(2 * np.logical_and(a, b).sum() / s)
+
+
+def check(fold: int, name: str, cases: list[str], img_dir: Path, gt_dir: Path, saved_dir: Path, io) -> None:
+    p = nnUNetPredictor(tile_step_size=0.5, use_gaussian=True, use_mirroring=True, perform_everything_on_device=True,
+                        device=torch.device("cuda"), verbose=False, verbose_preprocessing=False, allow_tqdm=False)
+    p.initialize_from_trained_model_folder(str(MODEL), use_folds=(fold,), checkpoint_name="checkpoint_final.pth")
+    print(f"=== fold {fold}, {name}: {len(cases)} images, saved masks in {saved_dir}", flush=True)
+    diffs, overlaps, new_d, old_d = [], [], [], []
+    for case in cases:
+        img, props = io.read_images([str(img_dir / f"{case}_0000.png")])
+        gt = io.read_seg(str(gt_dir / f"{case}.png"))[0][0] > 0
+        saved = io.read_seg(str(saved_dir / f"{case}.png"))[0][0] > 0
+        new = p.predict_single_npy_array(img, props, None, None, False)[0] > 0
+        diffs.append(int(np.logical_xor(saved, new).sum()))
+        overlaps.append(dice(saved, new))
+        new_d.append(dice(new, gt))
+        old_d.append(dice(saved, gt))
+    diffs = np.array(diffs)
+    print(f"identical masks: {(diffs == 0).sum()} of {len(cases)}; pixels differing: total {diffs.sum()}, "
+          f"largest in one image {diffs.max()}; lowest saved-vs-new overlap {min(overlaps):.5f}")
+    print(f"mean Dice saved {np.mean(old_d):.6f}, predicted today {np.mean(new_d):.6f}, "
+          f"difference {np.mean(new_d) - np.mean(old_d):+.6f}; "
+          f"largest change in one image {np.abs(np.array(new_d) - np.array(old_d)).max():.5f}", flush=True)
+
+
+def main() -> None:
+    io = NaturalImage2DIO()
+    splits = json.load(open(N / "nnUNet_preprocessed" / DS / "splits_final.json"))
+    test = sorted(f.stem for f in (RAW / "labelsTs").glob("*.png"))
+    check(0, "test", test, RAW / "imagesTs", RAW / "labelsTs", PRED, io)
+    for fold in (3, 4):
+        check(fold, "own validation", splits[fold]["val"], RAW / "imagesTr", RAW / "labelsTr",
+              MODEL / f"fold_{fold}" / "validation", io)
+    print("done", flush=True)
+
+
+if __name__ == "__main__":
+    main()
