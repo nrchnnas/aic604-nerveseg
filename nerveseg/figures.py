@@ -13,6 +13,11 @@ Examples (from the comp-vision folder):
   python nerveseg/figures.py size --out nerveseg/figures/501_default_size.png \
       nerveseg/nnunet/predictions/Dataset501_NerveRequired__nnUNetTrainer__fold0_dice.csv
 
+  # the same test images under two models, one row each
+  python nerveseg/figures.py pair --dataset 501 --cases nerve_151 nerve_152 --out nerveseg/figures/pair.png \
+      "W0=nerveseg/nnunet/predictions/Dataset501_NerveRequired__nnUNetTrainer_250epochs__fold0" \
+      "W2=nerveseg/nnunet/nnUNet_results/Dataset502_NerveGrouped/nnUNetTrainer_250epochs__nnUNetPlans__2d/fold_0/validation"
+
 Images are the ROI-cropped scans (patient header removed), so the figures are safe for slides.
 Colours: true outline green, predicted outline magenta.
 """
@@ -62,8 +67,8 @@ def crop_box(gm: np.ndarray, pm: np.ndarray, pad: int = 60) -> tuple[slice, slic
     return slice(y0, y1), slice(x0, x1)
 
 
-def draw(ax, r: dict, zoom: bool) -> None:
-    sy, sx = crop_box(r["gt"], r["pred"]) if zoom else (slice(None), slice(None))
+def draw(ax, r: dict, zoom: bool, box: tuple[slice, slice] | None = None) -> None:
+    sy, sx = box if box else crop_box(r["gt"], r["pred"]) if zoom else (slice(None), slice(None))
     ax.imshow(r["img"][sy, sx], cmap="gray")
     for m, c in ((r["gt"], GT_COLOR), (r["pred"], PRED_COLOR)):
         if m[sy, sx].any():
@@ -130,6 +135,39 @@ def cmd_compare(a) -> None:
     print("wrote", a.out)
 
 
+def cmd_pair(a) -> None:
+    """The same test images under several models: one row per model, one column per image. Each column is cropped
+    to cover the true nerve and every model's prediction, so a prediction on the wrong structure stays in view."""
+    models = [item.split("=", 1) for item in a.items]
+    rows = {label: {r["case"]: r for r in load(a.dataset, Path(path))} for label, path in models}
+    missing = [(label, c) for label, path in models for c in a.cases if not (Path(path) / f"{c}.png").exists()]
+    if missing:
+        raise SystemExit(f"no prediction for {missing}")
+    boxes = []
+    for case in a.cases:
+        union = np.logical_or.reduce([rows[label][case]["pred"] for label, _ in models])
+        boxes.append(crop_box(rows[models[0][0]][case]["gt"], union, pad=a.pad))
+    aspect = float(np.median([(sy.stop - sy.start) / (sx.stop - sx.start) for sy, sx in boxes]))
+    fig, axes = plt.subplots(len(models), len(a.cases), squeeze=False,
+                             figsize=(2.9 * len(a.cases), (2.9 * aspect + 0.45) * len(models) + 0.9))
+    for j, (case, box) in enumerate(zip(a.cases, boxes)):
+        for i, (label, _) in enumerate(models):
+            draw(axes[i, j], rows[label][case], True, box)
+    for i, (label, _) in enumerate(models):
+        axes[i, 0].text(-0.08, 0.5, label, transform=axes[i, 0].transAxes, rotation=90, va="center", ha="right",
+                        fontsize=11)
+    if a.title:
+        fig.suptitle(a.title, fontsize=12)
+    fig.legend(handles=[plt.Line2D([], [], color=GT_COLOR, label="true outline"),
+                        plt.Line2D([], [], color=PRED_COLOR, label="predicted outline")],
+               loc="lower center", ncol=2, frameon=False)
+    fig.tight_layout(rect=(0.02, 0.05, 1, 1))
+    Path(a.out).parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(a.out, dpi=200)
+    plt.close(fig)
+    print("wrote", a.out)
+
+
 FAILURE_STYLE = {"found": ("#4c72b0", "found (Dice >= {t})"), "poor": ("#dd8452", "poor overlap (0 < Dice < {t})"),
                  "missed_elsewhere": ("#c44e52", "missed: predicted elsewhere"),
                  "missed_empty": ("#7f7f7f", "missed: empty prediction")}
@@ -185,8 +223,15 @@ def main() -> None:
     z.add_argument("--title")
     z.add_argument("--poor-below", type=float, default=0.5, help="only for the legend; must match evaluate.py")
     z.add_argument("csv", help="per-image CSV written by evaluate.py")
+    q = sub.add_parser("pair")
+    q.add_argument("--dataset", choices=list(DATASETS), default="501", help="whose test images and labels")
+    q.add_argument("--cases", nargs="+", required=True, help="e.g. nerve_151 nerve_152")
+    q.add_argument("--out", required=True)
+    q.add_argument("--title")
+    q.add_argument("--pad", type=int, default=60, help="pixels around the nerve and predictions")
+    q.add_argument("items", nargs="+", help='"row label=folder of predicted masks"')
     a = ap.parse_args()
-    {"cases": cmd_cases, "compare": cmd_compare, "size": cmd_size}[a.cmd](a)
+    {"cases": cmd_cases, "compare": cmd_compare, "size": cmd_size, "pair": cmd_pair}[a.cmd](a)
 
 
 if __name__ == "__main__":

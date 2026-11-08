@@ -82,7 +82,7 @@ regions: images with more than one predicted region, single 6, ensemble 1
 === why cross-validation is lower than test
 43 of 60 test images are near-duplicates of one of the 240 training images; no held-out image in cross-validation has one.
 CV (no cluster shared): 0.6379. W0 test, near-duplicate: 0.8439; W0 test, none: 0.7680
-the 17 W0 test images without a near-duplicate: 7 still share a cluster with fold 0's training images (linked through other images), so they are not fully held out either
+the 17 W0 test images without a near-duplicate: 7 still share a cluster with fold 0's training images: clusters chain images at r > 0.80, while the near-duplicate flag uses r > 0.95, so they are not fully held out either
 
 === how concentrated are the failures? (picked after seeing the results, to describe them, not to drop images)
 zero-Dice images by cluster: [('14', 12), ('12', 9), ('2', 5), ('25', 2), ('44', 1), ('32', 1)]
@@ -318,8 +318,8 @@ def main() -> None:
     same = [c for c in tc if near[c] <= 0.95]
     tr_cl = Counter(meta[c]["cluster"] for c in splits[0]["train"])
     print(f"the {len(same)} W0 test images without a near-duplicate: {sum(tr_cl.get(meta[c]['cluster'], 0) > 0 for c in same)} "
-          f"still share a cluster with fold 0's training images (linked through other images), so they are not fully "
-          f"held out either")
+          f"still share a cluster with fold 0's training images: clusters chain images at r > 0.80, while the "
+          f"near-duplicate flag uses r > 0.95, so they are not fully held out either")
     print()
 
     print("=== how concentrated are the failures? (picked after seeing the results, to describe them, not to drop images)")

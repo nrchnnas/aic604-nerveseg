@@ -7,6 +7,8 @@ Instructor's email: select one model and explain its architecture, key component
 
 Status of this plan: owners and speakers were cleared on 4 Nov so the split can be decided again together (Ping's earlier suggestion: "one person does parts 1+3 and the other does 2"). Items marked OPEN still need both of you.
 
+**Results for the report and slides, with what each figure shows: `RESULTS.md` (8 Nov).** This plan keeps the rules and the history.
+
 ## Where things stand (5 Nov, 16:00)
 - Mac (M5 Max, Apple GPU): environment set up (`docs/env_mac.txt`). E0 measured **301 s per epoch**, which is about 21 h for 250 epochs, 42 h for 500 and 84 h for 1000, per run (lower bound; `docs/timing/`). nnU-Net uses mixed precision and `torch.compile` only on NVIDIA GPUs (`torch.compile` not on Windows), so the Mac trains in plain 32-bit.
 - **All reported results come from the NVIDIA workstation** (Nana, 5 Nov): W0, W2, WA, WA2, WB and WC, so every comparison is within one machine. W0 (default nnU-Net, 0.822 test Dice) is the main result. Nothing trained on the Mac is reported.
@@ -23,7 +25,7 @@ Status of this plan: owners and speakers were cleared on 4 Nov so the split can 
 | Report 1: dataset description and preprocessing |  | facts in `data/dataset_report.json`, README "Dataset facts" |
 | Report 2: nnU-Net architecture and contributions |  | the 60-point section; outline agreed together first |
 | Report 2, part: what nnU-Net configured for our data and why it suits this task |  | from `docs/nnunet_facts.md`; this is the "on the given task" part of the email |
-| Report 3: experimental design |  | training settings, metrics, splits, overfitting controls |
+| Report 3: experimental design |  | training settings, metrics, splits, how overfitting was monitored and limited |
 | Report 4: results and analysis |  | tables, success and failure cases, leakage comparison |
 | Slides design |  | |
 | Merging the report into one document |  | |
@@ -54,7 +56,7 @@ Options for E3. Chosen on the argument and the hours per run, **not** on Dice fr
 - C. Ensemble of 5 folds instead of fold 0: five times the training of E1.
 
 **Decided 5 Nov (Nana): A, on 501 and 502.** Reasons:
-- A is about this task: the skin is always at the top of these scans. That supports report section 2 ("on the given task") and section 3 (augmentation as an overfitting control).
+- A is about this task: the skin is always at the top of these scans. That supports report section 2 ("on the given task"). A is less augmentation than the default, not more, so section 3 should not present it as an overfitting control (decided with Nana, 8 Nov).
 - A costs the same as the default.
 - Section 2 still explains only one network.
 
@@ -112,7 +114,7 @@ Rules, fixed before any results:
 - Option A or B vs the default trainer: same rule on the validation images, at default inference; both are reported on test (`run.py compare`).
 
 What each run gets:
-1. Training curves (`run.py curves`): nnU-Net's loss and pseudo-Dice plot, and the epoch where `checkpoint_best` was saved. For "how overfitting was avoided".
+1. Training curves (`run.py curves`): nnU-Net's loss and pseudo-Dice plot, and the epoch where `checkpoint_best` was saved. For section 3's overfitting question, answered as "how overfitting was monitored and limited", not "avoided" (decided with Nana, 8 Nov).
 2. Best vs final checkpoint on test (`run.py test-variants`): overfitting evidence only.
 3. Flip averaging on/off: decided on validation (`run.py select`), both reported on test.
 4. Clean-up, keeping only the largest predicted region (every image has one nerve). Decided on validation with our `postprocess.py`, and both reported on test. nnU-Net's own step (`nnUNetv2_find_best_configuration <id> -c 2d -tr <trainer> -f 0 --disable_ensembling`, pinned to one experiment) is also run and recorded. It always decides on its default validation result with flip averaging on. If our rule turns flip averaging off, the two decisions used different bases; the report says so, and our decision counts.
@@ -146,7 +148,7 @@ Metrics: Dice per test image; mean with bootstrap 95% CI, median, minimum; IoU. 
 | 5 | nnU-Net's idea: fixed, rule-based, empirical parameters |  | 2:00 |
 | 6 | What nnU-Net chose for our data and why it fits |  | 1:30 |
 | 7 | Training setup (loss, optimizer, augmentation) |  | 1:15 |
-| 8 | Experimental design: splits, metrics, overfitting controls |  | 1:15 |
+| 8 | Experimental design: splits, metrics, how overfitting was monitored and limited |  | 1:15 |
 | 9 | Results table |  | 1:15 |
 | 10 | Successes and failures |  | 1:15 |
 | 11 | Leakage: required vs grouped split; baseline vs improved |  | 1:00 |
